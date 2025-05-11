@@ -26,9 +26,6 @@ import { showToast } from '../utils/toast';
  * @returns {JSX.Element} Rendered Sidebar component
  */
 const Sidebar = ({ setIsAuthenticated }) => {
-  // State to track if the Data submenu is expanded
-  const [dataExpanded, setDataExpanded] = useState(false);
-  
   // State to track user role
   const [userRole, setUserRole] = useState('user');
   
@@ -36,15 +33,7 @@ const Sidebar = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  /**
-   * Auto-expand the Data menu when navigating to the residents page
-   * This ensures the submenu is visible when the user is on a related page
-   */
   useEffect(() => {
-    if (location.pathname === '/residents') {
-      setDataExpanded(true);
-    }
-    
     // Get user role from localStorage
     const storedRole = localStorage.getItem('userRole');
     if (storedRole) {
@@ -52,21 +41,12 @@ const Sidebar = ({ setIsAuthenticated }) => {
     }
   }, [location.pathname]);
 
-  /**
-   * Handles user logout with error handling and toast notifications
-   * Calls the logoutUser function and navigates to the login page
-   */
   const handleLogout = () => {
     try {
-      // First call the logout function directly
       logoutUser(navigate, setIsAuthenticated);
-      
-      // Then show toast (this won't block the navigation)
-      showToast.success('Logged out successfully');
     } catch (error) {
       console.error('Error during logout:', error);
       showToast.error('Error logging out');
-      // Force navigation if there's an error
       window.location.href = '/login';
     }
   };
@@ -104,29 +84,14 @@ const Sidebar = ({ setIsAuthenticated }) => {
           <span>Dashboard</span>
         </Link>
         
-        {/* Data dropdown with residents submenu */}
-        <div className="sidebar-dropdown">
-          <div 
-            className={`sidebar-item ${location.pathname === '/residents' ? 'active' : ''}`}
-            onClick={() => setDataExpanded(!dataExpanded)}
-          >
-            <FaDatabase className="sidebar-icon" />
-            <span>Data</span>
-            {dataExpanded ? <FaAngleDown className="dropdown-icon" /> : <FaAngleRight className="dropdown-icon" />}
-          </div>
-          
-          {/* Submenu that shows only when expanded */}
-          {dataExpanded && (
-            <div className="sidebar-submenu">
-              <Link 
-                to="/residents"
-                className={`sidebar-subitem ${location.pathname === '/residents' ? 'active' : ''}`}
-              >
-                Residents
-              </Link>
-            </div>
-          )}
-        </div>
+        {/* Residents link */}
+        <Link 
+          to="/residents"
+          className={`sidebar-item ${location.pathname === '/residents' ? 'active' : ''}`}
+        >
+          <FaDatabase className="sidebar-icon" />
+          <span>Residents</span>
+        </Link>
 
         {/* Logout button */}
         <div className="sidebar-item logout" onClick={handleLogout}>
