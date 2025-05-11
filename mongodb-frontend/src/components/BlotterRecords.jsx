@@ -73,8 +73,7 @@ const BlotterRecords = () => {
   const approvedDeniedRecords = records.filter(r => r.status === 'approved' || r.status === 'denied');
 
   return (
-    <div className="blotter-logs-container">
-      <h1 className="blotter-heading blotter-heading-center">Blotter Records</h1>
+    <div>
       {/* Pending Approval Table */}
       <div className="blotter-logs-container">
         <h4 className="blotter-heading" style={{ fontSize: '1.08rem', fontWeight: 700, borderLeft: '3px solid #2563eb', paddingLeft: 8, marginBottom: 10 }}>Pending Approval</h4>
