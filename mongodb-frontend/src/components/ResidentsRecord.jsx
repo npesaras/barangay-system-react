@@ -24,6 +24,8 @@ import { getImageUrl } from '../utils/imageUtils';
 import { FaPlus, FaFileExport, FaFileImport, FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import axios from 'axios';
 import './ResidentsRecord.css';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const API_URL = 'http://localhost:5000';
 
@@ -271,6 +273,38 @@ export const ResidentsRecord = () => {
     }
   };
 
+  /**
+   * Handles PDF export
+   */
+  const handlePrintPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Residents Record', 14, 16);
+    const tableColumn = [
+      'Fullname',
+      'Citizenship',
+      'Age',
+      'Civil Status',
+      'Gender',
+      'Voter Status',
+    ];
+    const tableRows = filteredResidents.map(resident => [
+      `${resident.firstName || ''} ${resident.middleName ? resident.middleName + ' ' : ''}${resident.lastName || ''}`,
+      resident.citizenship || 'N/A',
+      resident.age || 'N/A',
+      resident.civilStatus || 'N/A',
+      resident.gender || 'N/A',
+      resident.votersStatus || 'N/A',
+    ]);
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 22,
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [66, 153, 225] },
+    });
+    doc.save('residents_record.pdf');
+  };
+
   // Define columns for the DataTable
   const columns = [
     {
@@ -354,7 +388,14 @@ export const ResidentsRecord = () => {
             <FaPlus /> Add Resident
           </button>
         )}
-        
+        {/* Print PDF button */}
+        <button 
+          className="btn btn-secondary"
+          onClick={handlePrintPDF}
+          disabled={loading || residents.length === 0}
+        >
+          <FaFileExport /> Print PDF
+        </button>
         {/* CSV Import/Export buttons */}
         <label className="btn btn-secondary">
           <FaFileImport /> Import CSV
