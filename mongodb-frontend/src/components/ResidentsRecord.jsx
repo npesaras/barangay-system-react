@@ -204,7 +204,7 @@ export const ResidentsRecord = () => {
     }
     
     try {
-      await residentService.deleteResident(resident.id);
+      await residentService.deleteResident(resident._id);
       showToast.success('Resident deleted successfully');
       fetchResidents();
     } catch (error) {
