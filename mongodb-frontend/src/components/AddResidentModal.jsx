@@ -91,7 +91,6 @@ const AddResidentModal = ({ show, onClose, onSubmit }) => {
                 ) : (
                   <div className="image-placeholder">
                     <FaCamera />
-                    <p>Click to upload photo</p>
                   </div>
                 )}
               </div>

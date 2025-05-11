@@ -138,7 +138,6 @@ const EditResidentModal = ({ show, onClose, onSubmit, resident }) => {
                 ) : (
                   <div className="image-placeholder">
                     <FaCamera />
-                    <p>Click to upload photo</p>
                   </div>
                 )}
               </div>
