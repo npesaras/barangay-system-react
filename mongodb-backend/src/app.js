@@ -21,6 +21,7 @@ const formatResponse = require('./middleware/response.middleware');
 // Import routes
 const authRoutes = require('./routes/auth.routes');
 const residentRoutes = require('./routes/resident.routes');
+const clearanceRequestRoutes = require('./routes/clearanceRequest.routes');
 
 // Create Express app
 const app = express();
@@ -49,6 +50,7 @@ if (process.env.NODE_ENV === 'production') {
 // Mount routes with /api prefix
 app.use('/api/auth', authRoutes);
 app.use('/api/residents', residentRoutes);
+app.use('/api/clearance-requests', clearanceRequestRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

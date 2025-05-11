@@ -9,6 +9,8 @@ import { ResidentsRecord } from './components/ResidentsRecord';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import Login from './components/Login';
 import { showToast } from './utils/toast';
+import DocumentApproval from './components/DocumentApproval';
+import RequestClearance from './components/RequestClearance';
 import './App.css';
 
 // Configure axios defaults
@@ -60,6 +62,7 @@ export const logoutUser = (navigate, setIsAuthenticated) => {
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error] = useState(null);
   const navigate = useNavigate();
@@ -107,13 +110,16 @@ function App() {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem('token');
+        const role = localStorage.getItem('userRole');
         if (token) {
           await api.get('/auth/verify');
           setIsAuthenticated(true);
+          setUserRole(role);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
         localStorage.clear();
+        setUserRole(null);
       } finally {
         setLoading(false);
       }
@@ -127,6 +133,12 @@ function App() {
       api.interceptors.response.eject(responseInterceptor);
     };
   }, [navigate, setIsAuthenticated]);
+
+  // Update userRole after login
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+    setUserRole(localStorage.getItem('userRole'));
+  };
 
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">Error: {error}</div>;
@@ -148,12 +160,12 @@ function App() {
       
       <Routes>
         <Route path="/login" element={
-          isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLoginSuccess={() => setIsAuthenticated(true)} />
+          isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLoginSuccess={handleLoginSuccess} />
         } />
         
         <Route path="/dashboard" element={
           isAuthenticated ? (
-            <Layout setIsAuthenticated={setIsAuthenticated}>
+            <Layout setIsAuthenticated={setIsAuthenticated} userRole={userRole}>
               <ErrorBoundary>
                 <Dashboard />
               </ErrorBoundary>
@@ -163,9 +175,29 @@ function App() {
         
         <Route path="/residents" element={
           isAuthenticated ? (
-            <Layout setIsAuthenticated={setIsAuthenticated}>
+            <Layout setIsAuthenticated={setIsAuthenticated} userRole={userRole}>
               <ErrorBoundary>
                 <ResidentsRecord />
+              </ErrorBoundary>
+            </Layout>
+          ) : <Navigate to="/login" />
+        } />
+        
+        <Route path="/document-approval" element={
+          isAuthenticated && userRole === 'admin' ? (
+            <Layout setIsAuthenticated={setIsAuthenticated} userRole={userRole}>
+              <ErrorBoundary>
+                <DocumentApproval />
+              </ErrorBoundary>
+            </Layout>
+          ) : <Navigate to="/login" />
+        } />
+        
+        <Route path="/request-clearance" element={
+          isAuthenticated && userRole !== 'admin' ? (
+            <Layout setIsAuthenticated={setIsAuthenticated} userRole={userRole}>
+              <ErrorBoundary>
+                <RequestClearance />
               </ErrorBoundary>
             </Layout>
           ) : <Navigate to="/login" />

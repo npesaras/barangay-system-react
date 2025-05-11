@@ -15,8 +15,8 @@
  * @module components/Sidebar
  */
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FaChartBar, FaDatabase, FaAngleRight, FaAngleDown, FaSignOutAlt, FaUser, FaUserShield } from 'react-icons/fa';
+import { Link, useNavigate, useLocation, NavLink } from 'react-router-dom';
+import { FaChartBar, FaDatabase, FaAngleRight, FaAngleDown, FaSignOutAlt, FaUser, FaUserShield, FaFileExport } from 'react-icons/fa';
 import { logoutUser } from '../App';
 import { showToast } from '../utils/toast';
 
@@ -25,21 +25,25 @@ import { showToast } from '../utils/toast';
  * 
  * @returns {JSX.Element} Rendered Sidebar component
  */
-const Sidebar = ({ setIsAuthenticated }) => {
+const Sidebar = ({ setIsAuthenticated, userRole: userRoleProp }) => {
   // State to track user role
-  const [userRole, setUserRole] = useState('user');
+  const [userRole, setUserRole] = useState(userRoleProp || 'user');
   
   // Hooks for navigation and location tracking
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Get user role from localStorage
-    const storedRole = localStorage.getItem('userRole');
-    if (storedRole) {
-      setUserRole(storedRole);
+    // Use prop if available, otherwise fallback to localStorage
+    if (userRoleProp) {
+      setUserRole(userRoleProp);
+    } else {
+      const storedRole = localStorage.getItem('userRole');
+      if (storedRole) {
+        setUserRole(storedRole);
+      }
     }
-  }, [location.pathname]);
+  }, [location.pathname, userRoleProp]);
 
   const handleLogout = () => {
     try {
@@ -74,31 +78,39 @@ const Sidebar = ({ setIsAuthenticated }) => {
       </div>
       
       {/* Navigation menu with links */}
-      <div className="sidebar-menu">
-        {/* Dashboard link */}
-        <Link 
-          to="/dashboard"
-          className={`sidebar-item ${location.pathname === '/dashboard' ? 'active' : ''}`}
-        >
-          <FaChartBar className="sidebar-icon" />
-          <span>Dashboard</span>
-        </Link>
-        
-        {/* Residents link */}
-        <Link 
-          to="/residents"
-          className={`sidebar-item ${location.pathname === '/residents' ? 'active' : ''}`}
-        >
-          <FaDatabase className="sidebar-icon" />
-          <span>Residents</span>
-        </Link>
-
-        {/* Logout button */}
-        <div className="sidebar-item logout" onClick={handleLogout}>
-          <FaSignOutAlt className="sidebar-icon" />
-          <span>Logout</span>
-        </div>
-      </div>
+      <ul className="sidebar-menu">
+        <li>
+          <NavLink to="/dashboard" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
+            <FaChartBar className="sidebar-icon" />
+            <span>Dashboard</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/residents" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
+            <FaDatabase className="sidebar-icon" />
+            <span>Residents</span>
+          </NavLink>
+        </li>
+        <li>
+          {userRole === 'admin' ? (
+            <NavLink to="/document-approval" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
+              <span className="icon"><FaFileExport /></span>
+              Document Approval
+            </NavLink>
+          ) : (
+            <NavLink to="/request-clearance" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
+              <span className="icon"><FaFileExport /></span>
+              Request Clearance
+            </NavLink>
+          )}
+        </li>
+        <li>
+          <button className="sidebar-item logout" onClick={handleLogout}>
+            <FaSignOutAlt className="sidebar-icon" />
+            <span>Logout</span>
+          </button>
+        </li>
+      </ul>
     </div>
   );
 };
