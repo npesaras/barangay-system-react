@@ -11,6 +11,8 @@ import Login from './components/Login';
 import { showToast } from './utils/toast';
 import DocumentApproval from './components/DocumentApproval';
 import RequestClearance from './components/RequestClearance';
+import Blotter from './components/Blotter';
+import BlotterRecords from './components/BlotterRecords';
 import './App.css';
 
 // Configure axios defaults
@@ -198,6 +200,26 @@ function App() {
             <Layout setIsAuthenticated={setIsAuthenticated} userRole={userRole}>
               <ErrorBoundary>
                 <RequestClearance />
+              </ErrorBoundary>
+            </Layout>
+          ) : <Navigate to="/login" />
+        } />
+        
+        <Route path="/blotter" element={
+          isAuthenticated && userRole !== 'admin' ? (
+            <Layout setIsAuthenticated={setIsAuthenticated} userRole={userRole}>
+              <ErrorBoundary>
+                <Blotter />
+              </ErrorBoundary>
+            </Layout>
+          ) : <Navigate to="/login" />
+        } />
+        
+        <Route path="/blotter-requests" element={
+          isAuthenticated && userRole === 'admin' ? (
+            <Layout setIsAuthenticated={setIsAuthenticated} userRole={userRole}>
+              <ErrorBoundary>
+                <BlotterRecords />
               </ErrorBoundary>
             </Layout>
           ) : <Navigate to="/login" />

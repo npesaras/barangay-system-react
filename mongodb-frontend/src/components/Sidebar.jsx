@@ -105,6 +105,19 @@ const Sidebar = ({ setIsAuthenticated, userRole: userRoleProp }) => {
           )}
         </li>
         <li>
+          {userRole === 'admin' ? (
+            <NavLink to="/blotter-requests" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
+              <span className="icon"><FaFileExport /></span>
+              Blotter Requests
+            </NavLink>
+          ) : (
+            <NavLink to="/blotter" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
+              <span className="icon"><FaFileExport /></span>
+              Blotter
+            </NavLink>
+          )}
+        </li>
+        <li>
           <button className="sidebar-item logout" onClick={handleLogout}>
             <FaSignOutAlt className="sidebar-icon" />
             <span>Logout</span>
