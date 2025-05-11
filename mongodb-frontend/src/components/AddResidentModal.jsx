@@ -89,8 +89,22 @@ const AddResidentModal = ({ show, onClose, onSubmit }) => {
                 {imagePreview ? (
                   <img src={imagePreview} alt="Profile Preview" />
                 ) : (
-                  <div className="image-placeholder">
-                    <FaCamera />
+                  <div className="image-placeholder" style={{
+                    width: '120px',
+                    height: '120px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px dashed #cbd5e0',
+                    borderRadius: '50%',
+                    background: '#f8f9fa',
+                    color: '#a0aec0',
+                    fontSize: '2.5rem',
+                    margin: '0 auto',
+                  }}>
+                    <FaCamera style={{ fontSize: '2.5rem', marginBottom: '8px' }} />
+                    <span style={{ fontSize: '0.95rem', color: '#a0aec0' }}>No Photo</span>
                   </div>
                 )}
               </div>
