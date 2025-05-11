@@ -123,7 +123,7 @@ const Blotter = () => {
           ) : (
             logs.map(log => (
               <tr key={log._id}>
-                <td><span className={`status-label ${log.status}`}>{log.status.charAt(0).toUpperCase() + log.status.slice(1)}</span></td>
+                <td><span className={`status-label ${log.status?.toLowerCase()}`}>{log.status.charAt(0).toUpperCase() + log.status.slice(1)}</span></td>
                 <td>{log.incidentType}</td>
                 <td>{log.dateTimeReported ? new Date(log.dateTimeReported).toLocaleString() : ''}</td>
                 <td>{log.dateTimeIncident ? new Date(log.dateTimeIncident).toLocaleString() : ''}</td>

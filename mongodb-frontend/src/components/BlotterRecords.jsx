@@ -184,15 +184,7 @@ const BlotterRecords = () => {
               approvedDeniedRecords.map(record => (
                 <tr key={record._id}>
                   <td>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{
-                        display: 'inline-block',
-                        width: 10,
-                        height: 10,
-                        borderRadius: '50%',
-                        background: statusColors[record.status]?.color || '#bbb',
-                        marginRight: 5
-                      }}></span>
+                    <span className={`status-label ${record.status}`}>
                       {statusColors[record.status]?.label || record.status}
                     </span>
                   </td>
