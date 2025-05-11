@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import axios from 'axios';
@@ -28,7 +28,7 @@ export const api = axios.create({
 });
 
 // Global logout function
-export const logoutUser = (navigate) => {
+export const logoutUser = (navigate, setIsAuthenticated) => {
   try {
     // Cancel any pending requests
     if (axios.CancelToken) {
@@ -42,6 +42,9 @@ export const logoutUser = (navigate) => {
     // Clear axios defaults
     delete api.defaults.headers.common['Authorization'];
     
+    // Update authentication state
+    if (setIsAuthenticated) setIsAuthenticated(false);
+    
     // Redirect to login page
     if (navigate) {
       navigate('/login');
@@ -50,6 +53,7 @@ export const logoutUser = (navigate) => {
     }
   } catch (error) {
     console.error('Error during logout:', error);
+    if (setIsAuthenticated) setIsAuthenticated(false);
     window.location.href = '/login';
   }
 };
@@ -57,7 +61,7 @@ export const logoutUser = (navigate) => {
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error] = useState(null);
   const navigate = useNavigate();
 
   // Set up axios interceptors
@@ -84,7 +88,7 @@ function App() {
           // that falls out of the range of 2xx
           if (error.response.status === 401) {
             showToast.error('Your session has expired. Please log in again.');
-            logoutUser(navigate);
+            logoutUser(navigate, setIsAuthenticated);
           } else {
             showToast.error(error.response.data?.message || 'An error occurred');
           }
@@ -122,7 +126,7 @@ function App() {
       api.interceptors.request.eject(requestInterceptor);
       api.interceptors.response.eject(responseInterceptor);
     };
-  }, [navigate]);
+  }, [navigate, setIsAuthenticated]);
 
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">Error: {error}</div>;
@@ -149,7 +153,7 @@ function App() {
         
         <Route path="/dashboard" element={
           isAuthenticated ? (
-            <Layout>
+            <Layout setIsAuthenticated={setIsAuthenticated}>
               <ErrorBoundary>
                 <Dashboard />
               </ErrorBoundary>
@@ -159,7 +163,7 @@ function App() {
         
         <Route path="/residents" element={
           isAuthenticated ? (
-            <Layout>
+            <Layout setIsAuthenticated={setIsAuthenticated}>
               <ErrorBoundary>
                 <ResidentsRecord />
               </ErrorBoundary>

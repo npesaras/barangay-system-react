@@ -25,7 +25,7 @@ import { showToast } from '../utils/toast';
  * 
  * @returns {JSX.Element} Rendered Sidebar component
  */
-const Sidebar = () => {
+const Sidebar = ({ setIsAuthenticated }) => {
   // State to track if the Data submenu is expanded
   const [dataExpanded, setDataExpanded] = useState(false);
   
@@ -59,7 +59,7 @@ const Sidebar = () => {
   const handleLogout = () => {
     try {
       // First call the logout function directly
-      logoutUser(navigate);
+      logoutUser(navigate, setIsAuthenticated);
       
       // Then show toast (this won't block the navigation)
       showToast.success('Logged out successfully');
