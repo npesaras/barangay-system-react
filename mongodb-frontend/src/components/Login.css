@@ -3,7 +3,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+  background-color: linear-gradient(to top, rgba(44,44,84,0.45) 0%, #f7f8fa 100%);
+  /* opacity: 0.2; */
+  background-image: radial-gradient(rgba(68,76,247,0.18) 0.8px, #e5e5f7 0.8px);
+  background-size: 12px 12px;
   padding: 20px;
 }
 
