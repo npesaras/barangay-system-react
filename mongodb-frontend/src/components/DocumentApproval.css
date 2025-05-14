@@ -78,19 +78,25 @@
 }
 
 .status-label {
-  padding: 0.4rem 1.1rem;
-  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
   font-weight: 500;
+  padding: 0.25em 0.9em;
+  border-radius: 8px;
+  font-size: 0.98em;
   text-transform: capitalize;
-  font-size: 1rem;
-  display: inline-block;
   min-width: 90px;
   text-align: center;
 }
 
 .status-label.approved {
   background: #d1fae5;
-  color: #065f46;
+  color: #059669;
+}
+
+.status-label.denied {
+  background: #f3f4f6;
+  color: #6b7280;
 }
 
 .status-label.pending {
@@ -98,9 +104,38 @@
   color: #b45309;
 }
 
-.status-label.rejected, .status-label.deleted {
+.btn-icon {
+  background: none;
+  border: none;
+  color: #5271ff;
+  font-size: 1.15em;
+  cursor: pointer;
+  padding: 0.35em;
+  border-radius: 6px;
+  transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  background: #f0f4ff;
+}
+
+.btn-approve {
+  color: #059669;
+}
+
+.btn-approve:hover {
+  background: #d1fae5;
+}
+
+.btn-deny {
+  color: #dc2626;
+}
+
+.btn-deny:hover {
   background: #fee2e2;
-  color: #b91c1c;
 }
 
 @media (max-width: 700px) {

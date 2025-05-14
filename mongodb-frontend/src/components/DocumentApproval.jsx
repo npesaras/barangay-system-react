@@ -89,14 +89,24 @@ const DocumentApproval = () => {
                 <td>{req.fullname}</td>
                 <td>{req.address}</td>
                 <td>{req.purpose}</td>
-                <td><span className={`status-label ${req.status}`}>{req.status.charAt(0).toUpperCase() + req.status.slice(1)}</span></td>
+                <td><span className={`status-label ${req.status}`}>
+                  {req.status === 'approved' && <><FaCheck style={{marginRight: 4}} />Approved</>}
+                  {req.status === 'denied' && <><FaTimes style={{marginRight: 4}} />Denied</>}
+                  {req.status === 'pending' && <>Pending</>}
+                </span></td>
                 <td>{new Date(req.createdAt).toLocaleDateString()}</td>
-                <td style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                  <button className="btn-view" title="View Details" onClick={() => handleView(req)}><FaEye /></button>
+                <td style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
+                  <button className="btn-icon" title="View Details" onClick={() => handleView(req)}>
+                    <FaEye />
+                  </button>
                   {req.status === 'pending' && (
                     <>
-                      <button className="btn-approve" onClick={() => handleApprove(req._id)}><FaCheck style={{marginRight: 4}} />Approve</button>
-                      <button className="btn-delete" onClick={() => handleDeny(req._id)}><FaTimes style={{marginRight: 4}} />Deny</button>
+                      <button className="btn-icon btn-approve" title="Approve" onClick={() => handleApprove(req._id)}>
+                        <FaCheck />
+                      </button>
+                      <button className="btn-icon btn-deny" title="Deny" onClick={() => handleDeny(req._id)}>
+                        <FaTimes />
+                      </button>
                     </>
                   )}
                 </td>
