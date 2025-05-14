@@ -11,6 +11,7 @@ const AccountSettings = () => {
   const [preview, setPreview] = useState('');
   const [passwords, setPasswords] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
   const [loading, setLoading] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     fetchUser();
@@ -68,14 +69,25 @@ const AccountSettings = () => {
       formData.append('username', form.username);
       formData.append('email', form.email);
       formData.append('phoneNumber', form.phoneNumber);
-      if (profileImage) formData.append('profileImage', profileImage);
-      await axios.put(`${backendBase}/auth/update`, formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      if (profileImage instanceof File) {
+        formData.append('profileImage', profileImage);
+      }
+      const res = await fetch(`${backendBase}/auth/update`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+        body: formData,
       });
-      showToast.success('Account updated');
-      fetchUser();
+      const data = await res.json();
+      if (data.success) {
+        showToast.success('Account updated');
+        fetchUser();
+      } else {
+        showToast.error(data.message || 'Failed to update account');
+      }
     } catch (err) {
-      showToast.error(err.response?.data?.message || 'Failed to update account');
+      showToast.error('Failed to update account');
     } finally {
       setLoading(false);
     }
@@ -112,7 +124,11 @@ const AccountSettings = () => {
       <form onSubmit={handleUpdate} style={{ marginBottom: 32 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 18 }}>
           <div style={{ width: 100, height: 100, borderRadius: '50%', overflow: 'hidden', background: '#f3f3f3', border: '2px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {preview ? <img src={preview} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ color: '#aaa', fontSize: 40 }}>👤</span>}
+            {preview && !imgError ? (
+              <img src={preview} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImgError(true)} />
+            ) : (
+              <img src="/profile-placeholder.png" alt="Placeholder" style={{ width: '70%', opacity: 0.5 }} />
+            )}
           </div>
           <label style={{ cursor: 'pointer', color: '#2563eb', fontWeight: 500 }}>
             Change Photo

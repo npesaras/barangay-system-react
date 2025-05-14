@@ -96,7 +96,10 @@ const accountPictureStorage = multer.diskStorage({
 });
 const uploadAccountPicture = multer({
   storage: accountPictureStorage,
-  fileFilter: fileFilter,
+  fileFilter: (req, file, cb) => {
+    console.log('[uploadAccountPicture] file:', file ? file.originalname : 'none');
+    fileFilter(req, file, cb);
+  },
   limits: { fileSize: 5 * 1024 * 1024 }
 });
 
