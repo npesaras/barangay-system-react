@@ -30,4 +30,13 @@ export const clearanceService = {
     const response = await api.patch(`/clearance-requests/${id}/deny`);
     return response.data;
   },
+
+  // Generate QR code for a request (admin only)
+  generateQRCode: async (id) => {
+    const response = await api.patch(`/clearance-requests/${id}/generate-qr`);
+    return response.data;
+  },
+
+  // Get QR code image URL for a request
+  getQRCodeUrl: (id) => `/clearance-requests/${id}/qr`,
 }; 

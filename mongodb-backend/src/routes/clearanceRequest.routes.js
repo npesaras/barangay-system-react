@@ -3,6 +3,9 @@ const router = express.Router();
 const controller = require('../controllers/clearanceRequest.controller');
 const auth = require('../middleware/auth.middleware');
 
+// Serve QR code image (public, before auth middleware)
+router.get('/:id/qr', controller.getQRCode);
+
 // All routes require authentication
 router.use(auth);
 
@@ -16,5 +19,7 @@ router.patch('/:id/approve', controller.approveRequest);
 router.patch('/:id/deny', controller.denyRequest);
 // Delete a request (admin only)
 router.delete('/:id', controller.deleteRequest);
+// Generate QR code for a request (admin)
+router.patch('/:id/generate-qr', controller.generateQRCode);
 
 module.exports = router; 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { clearanceService } from '../services/clearanceService';
 import { showToast } from '../utils/toast';
 import './DocumentApproval.css';
-import { FaCheck, FaTimes, FaEye } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaEye, FaQrcode } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import { barangayInfoService } from '../services/barangayInfoService';
 
@@ -16,6 +16,8 @@ const DocumentApproval = () => {
   const [generateRequest, setGenerateRequest] = useState(null);
   const [barangayInfo, setBarangayInfo] = useState(null);
   const [logoImg, setLogoImg] = useState(null);
+  const [qrModal, setQrModal] = useState({ open: false, qrUrl: '', loading: false });
+  const backendBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -192,6 +194,25 @@ const DocumentApproval = () => {
     setGenerateRequest(null);
   };
 
+  const handleGenerateQR = async (req) => {
+    setQrModal({ open: true, qrUrl: '', loading: true });
+    try {
+      await clearanceService.generateQRCode(req._id);
+      // After generation, get the QR code URL (absolute)
+      const qrUrl = `${backendBase}/clearance-requests/${req._id}/qr?t=${Date.now()}`;
+      setQrModal({ open: true, qrUrl, loading: false });
+      fetchRequests();
+    } catch (err) {
+      showToast.error('Failed to generate QR code');
+      setQrModal({ open: false, qrUrl: '', loading: false });
+    }
+  };
+
+  const handleViewQR = (req) => {
+    const qrUrl = `${backendBase}/clearance-requests/${req._id}/qr`;
+    setQrModal({ open: true, qrUrl, loading: false });
+  };
+
   const pendingRequests = requests.filter(r => r.status === 'pending');
   const processedRequests = requests.filter(r => r.status === 'approved' || r.status === 'denied');
 
@@ -268,9 +289,20 @@ const DocumentApproval = () => {
                     <FaEye />
                   </button>
                   {req.status === 'approved' && (
-                    <button className="btn-icon btn-generate" title="Generate Document" style={{ fontSize: '1em', color: '#2563eb', padding: '4px 6px' }} onClick={() => handleGenerateClick(req)}>
-                      <span style={{ fontWeight: 500, fontSize: '0.98em' }}>📄</span>
-                    </button>
+                    <>
+                      <button className="btn-icon btn-generate" title="Generate Document" style={{ fontSize: '1em', color: '#2563eb', padding: '4px 6px' }} onClick={() => handleGenerateClick(req)}>
+                        <span style={{ fontWeight: 500, fontSize: '0.98em' }}>📄</span>
+                      </button>
+                      {req.qrCodePath ? (
+                        <button className="btn-icon btn-qr" title="View QR Code" style={{ fontSize: '1em', color: '#059669', padding: '4px 6px' }} onClick={() => handleViewQR(req)}>
+                          <FaQrcode />
+                        </button>
+                      ) : (
+                        <button className="btn-icon btn-qr" title="Generate QR Code" style={{ fontSize: '1em', color: '#059669', padding: '4px 6px' }} onClick={() => handleGenerateQR(req)}>
+                          <FaQrcode />
+                        </button>
+                      )}
+                    </>
                   )}
                 </td>
               </tr>
@@ -321,6 +353,28 @@ const DocumentApproval = () => {
             </div>
             <button style={{ marginTop: 18, background: '#5271ff', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={handleGeneratePDF}>Generate PDF</button>
             <button style={{ marginTop: 18, marginLeft: 10, background: '#eee', color: '#333', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={() => setShowGenerateModal(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {qrModal.open && (
+        <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
+          <div className="modal-content" style={{ background: '#fff', borderRadius: 10, padding: '2rem', minWidth: 320, maxWidth: 400, boxShadow: '0 4px 24px rgba(0,0,0,0.13)', textAlign: 'center' }}>
+            <h3 style={{ marginTop: 0, marginBottom: 16 }}>QR Code</h3>
+            {qrModal.loading ? (
+              <div>Generating QR code...</div>
+            ) : (
+              <>
+                {console.log('QR Modal URL:', qrModal.qrUrl)}
+                <img
+                  src={qrModal.qrUrl}
+                  alt="QR Code"
+                  style={{ width: 200, height: 200, margin: '0 auto' }}
+                  onError={e => { e.target.onerror = null; e.target.src = '/qr-placeholder.png'; }}
+                />
+              </>
+            )}
+            <button style={{ marginTop: 18, background: '#5271ff', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={() => setQrModal({ open: false, qrUrl: '', loading: false })}>Close</button>
           </div>
         </div>
       )}

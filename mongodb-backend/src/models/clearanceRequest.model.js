@@ -8,6 +8,8 @@ const clearanceRequestSchema = new mongoose.Schema({
   purpose: { type: String, required: true },
   message: { type: String },
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  qrCodePath: { type: String },
+  qrCodeHash: { type: String },
 }, { timestamps: true });
 
 module.exports = mongoose.model('ClearanceRequest', clearanceRequestSchema); 
