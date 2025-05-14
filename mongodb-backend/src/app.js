@@ -23,6 +23,7 @@ const authRoutes = require('./routes/auth.routes');
 const residentRoutes = require('./routes/resident.routes');
 const clearanceRequestRoutes = require('./routes/clearanceRequest.routes');
 const blotterRequestRoutes = require('./routes/blotterRequest.routes');
+const barangayInfoRoutes = require('./routes/barangayInfo.routes');
 
 // Create Express app
 const app = express();
@@ -53,6 +54,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/residents', residentRoutes);
 app.use('/api/clearance-requests', clearanceRequestRoutes);
 app.use('/api/blotter-requests', blotterRequestRoutes);
+app.use('/api/barangay-info', barangayInfoRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

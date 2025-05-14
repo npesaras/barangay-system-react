@@ -57,12 +57,9 @@ const Sidebar = ({ setIsAuthenticated, userRole: userRoleProp }) => {
 
   return (
     <div className="sidebar" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Header with application name */}
       <div className="sidebar-header">
         <h3>BRM SYSTEM</h3>
       </div>
-      
-      {/* User role indicator */}
       <div className="user-role">
         {userRole === 'admin' ? (
           <>
@@ -76,8 +73,6 @@ const Sidebar = ({ setIsAuthenticated, userRole: userRoleProp }) => {
           </>
         )}
       </div>
-      
-      {/* Navigation menu with links */}
       <ul className="sidebar-menu" style={{ flex: 1 }}>
         <li>
           <NavLink to="/dashboard" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
@@ -89,6 +84,12 @@ const Sidebar = ({ setIsAuthenticated, userRole: userRoleProp }) => {
           <NavLink to="/residents" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
             <FaDatabase className="sidebar-icon" />
             <span>Residents</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/barangay-info" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
+            <FaUserShield className="sidebar-icon" />
+            <span>Barangay Info</span>
           </NavLink>
         </li>
         <li>
@@ -118,7 +119,6 @@ const Sidebar = ({ setIsAuthenticated, userRole: userRoleProp }) => {
           )}
         </li>
       </ul>
-      {/* Logout button always at the bottom */}
       <button className="sidebar-item logout" onClick={handleLogout} style={{ width: '100%' }}>
         <FaSignOutAlt className="sidebar-icon" />
         <span>Logout</span>

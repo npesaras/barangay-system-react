@@ -13,6 +13,7 @@ import DocumentApproval from './components/DocumentApproval';
 import RequestClearance from './components/RequestClearance';
 import Blotter from './components/Blotter';
 import BlotterRecords from './components/BlotterRecords';
+import BarangayInfo from './components/BarangayInfo';
 import './App.css';
 
 // Configure axios defaults
@@ -224,6 +225,8 @@ function App() {
             </Layout>
           ) : <Navigate to="/login" />
         } />
+        
+        <Route path="/barangay-info" element={<BarangayInfo isAdmin={userRole === 'admin'} />} />
         
         <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
       </Routes>
