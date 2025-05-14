@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { clearanceService } from '../services/clearanceService';
 import { showToast } from '../utils/toast';
 import './DocumentApproval.css';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 const DocumentApproval = () => {
   const [requests, setRequests] = useState([]);
@@ -64,7 +65,7 @@ const DocumentApproval = () => {
             <th>Purpose</th>
             <th>Status</th>
             <th>Requested At</th>
-            <th>Action</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -81,8 +82,8 @@ const DocumentApproval = () => {
                 <td>
                   {req.status === 'pending' ? (
                     <>
-                      <button className="btn-approve" onClick={() => handleApprove(req._id)}>Approve</button>
-                      <button className="btn-delete" onClick={() => handleDeny(req._id)}>Deny</button>
+                      <button className="btn-approve" onClick={() => handleApprove(req._id)}><FaCheck style={{marginRight: 4}} />Approve</button>
+                      <button className="btn-delete" onClick={() => handleDeny(req._id)}><FaTimes style={{marginRight: 4}} />Deny</button>
                     </>
                   ) : (
                     <span style={{ color: '#bbb' }}>—</span>

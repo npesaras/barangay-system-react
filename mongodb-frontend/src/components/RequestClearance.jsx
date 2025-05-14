@@ -62,7 +62,17 @@ const RequestClearance = () => {
         </div>
         <div className="form-group">
           <label>Purpose</label>
-          <input name="purpose" value={form.purpose} onChange={handleChange} required />
+          <select
+            name="purpose"
+            value={form.purpose}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Purpose</option>
+            <option value="Barangay Clearance">Barangay Clearance</option>
+            <option value="Certificate">Certificate</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
         <button type="submit" className="btn btn-primary" disabled={loading}>Submit Request</button>
       </form>
