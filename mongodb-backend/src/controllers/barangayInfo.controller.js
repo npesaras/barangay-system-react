@@ -37,14 +37,14 @@ module.exports = {
       let logo = info.logo;
       if (req.file) {
         // Remove old logo if exists
-        if (logo && fs.existsSync(path.join(__dirname, '../../uploads/profiles', logo))) {
-          fs.unlinkSync(path.join(__dirname, '../../uploads/profiles', logo));
+        if (logo && fs.existsSync(path.join(__dirname, '../../uploads/barangay-logos', logo))) {
+          fs.unlinkSync(path.join(__dirname, '../../uploads/barangay-logos', logo));
         }
         logo = req.file.filename;
         // Log the uploaded file
         console.log('Barangay logo uploaded:', logo);
         // Check if file exists after upload
-        const uploadedPath = path.join(__dirname, '../../uploads/profiles', logo);
+        const uploadedPath = path.join(__dirname, '../../uploads/barangay-logos', logo);
         if (!fs.existsSync(uploadedPath)) {
           return res.status(500).json({ success: false, message: 'Logo upload failed. File not found after upload.' });
         }
@@ -67,7 +67,7 @@ module.exports = {
     try {
       const info = await getSingleton();
       if (!info.logo) return res.status(404).json({ success: false, message: 'No barangay logo set. Please upload a logo.' });
-      const logoPath = path.join(__dirname, '../../uploads/profiles', info.logo);
+      const logoPath = path.join(__dirname, '../../uploads/barangay-logos', info.logo);
       if (!fs.existsSync(logoPath)) return res.status(404).json({ success: false, message: 'Barangay logo file not found on server.' });
       res.sendFile(logoPath);
     } catch (err) {

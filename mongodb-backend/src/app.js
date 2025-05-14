@@ -40,6 +40,8 @@ app.use(formatResponse); // Response formatting
 
 // Serve static files
 app.use('/uploads/profiles', express.static(path.join(__dirname, '../uploads/profiles')));
+app.use('/uploads/barangay-logos', express.static(path.join(__dirname, '../uploads/barangay-logos')));
+app.use('/uploads/account-pictures', express.static(path.join(__dirname, '../uploads/account-pictures')));
 
 // Apply rate limiting only in production
 if (process.env.NODE_ENV === 'production') {

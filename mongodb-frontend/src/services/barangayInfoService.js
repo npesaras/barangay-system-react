@@ -18,5 +18,11 @@ export const barangayInfoService = {
     });
     return res.data.data;
   },
-  getLogoUrl: () => `${api.defaults.baseURL}/barangay-info/logo`,
+  getLogoUrl: (logoFilename) => {
+    const base = api.defaults.baseURL.replace(/\/api$/, '');
+    if (logoFilename) {
+      return `${base}/uploads/barangay-logos/${logoFilename}`;
+    }
+    return `${api.defaults.baseURL}/barangay-info/logo`;
+  },
 }; 

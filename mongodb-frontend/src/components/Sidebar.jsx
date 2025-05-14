@@ -118,6 +118,12 @@ const Sidebar = ({ setIsAuthenticated, userRole: userRoleProp }) => {
             </NavLink>
           )}
         </li>
+        <li>
+          <NavLink to="/account" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
+            <FaUser className="sidebar-icon" />
+            <span>Account Settings</span>
+          </NavLink>
+        </li>
       </ul>
       <button className="sidebar-item logout" onClick={handleLogout} style={{ width: '100%' }}>
         <FaSignOutAlt className="sidebar-icon" />

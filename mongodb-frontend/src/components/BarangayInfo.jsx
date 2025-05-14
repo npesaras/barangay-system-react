@@ -26,6 +26,7 @@ const BarangayInfo = ({ isAdmin = false }) => {
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [logoFile, setLogoFile] = useState(null);
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     async function fetchInfo() {
@@ -33,8 +34,9 @@ const BarangayInfo = ({ isAdmin = false }) => {
       try {
         const data = await barangayInfoService.getInfo();
         setInfo(data);
+        setLogoError(false);
         if (data.logo) {
-          setLogoPreview(barangayInfoService.getLogoUrl() + '?t=' + Date.now());
+          setLogoPreview(barangayInfoService.getLogoUrl(data.logo) + '?t=' + Date.now());
         } else {
           setLogoPreview('');
         }
@@ -43,6 +45,7 @@ const BarangayInfo = ({ isAdmin = false }) => {
           barangay: '', municipality: '', province: '', phoneNumber: '', emailAddress: '', logo: ''
         });
         setLogoPreview('');
+        setLogoError(false);
       } finally {
         setLoading(false);
       }
@@ -69,7 +72,7 @@ const BarangayInfo = ({ isAdmin = false }) => {
     setEditing(false);
     setLogoFile(null);
     if (info.logo) {
-      setLogoPreview(barangayInfoService.getLogoUrl() + '?t=' + Date.now());
+      setLogoPreview(barangayInfoService.getLogoUrl(info.logo) + '?t=' + Date.now());
     } else {
       setLogoPreview('');
     }
@@ -85,7 +88,7 @@ const BarangayInfo = ({ isAdmin = false }) => {
       const updated = await barangayInfoService.updateInfo(info, logoFile);
       setInfo(updated);
       if (updated.logo) {
-        setLogoPreview(barangayInfoService.getLogoUrl() + '?t=' + Date.now());
+        setLogoPreview(barangayInfoService.getLogoUrl(updated.logo) + '?t=' + Date.now());
       } else {
         setLogoPreview('');
       }
@@ -100,7 +103,7 @@ const BarangayInfo = ({ isAdmin = false }) => {
 
   if (loading || !info) return <div className="barangay-info-page"><div>Loading...</div></div>;
 
-  const showLogo = logoPreview;
+  const showLogo = logoPreview && !logoError;
   const showDefault = !showLogo;
 
   return (
@@ -108,7 +111,7 @@ const BarangayInfo = ({ isAdmin = false }) => {
       <div className="barangay-info-left">
         <div className="barangay-logo-container">
           {showLogo ? (
-            <img src={logoPreview} alt="Barangay Logo" className="barangay-logo" onError={e => { e.target.onerror = null; e.target.style.display = 'none'; }} />
+            <img src={logoPreview} alt="Barangay Logo" className="barangay-logo" onError={() => setLogoError(true)} />
           ) : (
             <div className="barangay-logo-placeholder">
               {getInitials(info.barangay) || <img src={defaultLogo} alt="Default Logo" style={{ width: '60%', opacity: 0.5 }} />}

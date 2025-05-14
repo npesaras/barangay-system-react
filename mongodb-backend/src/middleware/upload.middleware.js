@@ -60,7 +60,49 @@ const handleUploadError = (err, req, res, next) => {
   next();
 };
 
+// New: Barangay logo upload middleware
+const barangayLogoDir = path.join(__dirname, '../../uploads/barangay-logos');
+if (!fs.existsSync(barangayLogoDir)) {
+  fs.mkdirSync(barangayLogoDir, { recursive: true });
+}
+const barangayLogoStorage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, barangayLogoDir);
+  },
+  filename: function(req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'logo-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const uploadBarangayLogo = multer({
+  storage: barangayLogoStorage,
+  fileFilter: fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
+// New: Account picture upload middleware
+const accountPictureDir = path.join(__dirname, '../../uploads/account-pictures');
+if (!fs.existsSync(accountPictureDir)) {
+  fs.mkdirSync(accountPictureDir, { recursive: true });
+}
+const accountPictureStorage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, accountPictureDir);
+  },
+  filename: function(req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'account-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const uploadAccountPicture = multer({
+  storage: accountPictureStorage,
+  fileFilter: fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
 module.exports = {
   upload: uploadMiddleware,
-  handleUploadError
+  handleUploadError,
+  uploadBarangayLogo,
+  uploadAccountPicture
 }; 

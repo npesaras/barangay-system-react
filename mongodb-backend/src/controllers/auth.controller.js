@@ -238,6 +238,75 @@ class AuthController {
       message: 'Logged out successfully'
     });
   }
+
+  /**
+   * Get current user info (except password)
+   */
+  static async getMe(req, res) {
+    try {
+      const user = await User.findById(req.user._id).select('-password');
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      res.json({ success: true, user });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * Update current user info (username, email, phone, profile image)
+   */
+  static async updateMe(req, res) {
+    try {
+      console.log('[updateMe] req.body:', req.body);
+      console.log('[updateMe] req.file:', req.file);
+      const updates = {};
+      if (req.body.username) updates.username = req.body.username;
+      if (req.body.email) updates.email = req.body.email;
+      if (req.body.phoneNumber) updates.phoneNumber = req.body.phoneNumber;
+      if (req.file) updates.profileImage = req.file.filename;
+      const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true, runValidators: true }).select('-password');
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      res.json({ success: true, user });
+    } catch (error) {
+      if (error.code === 11000 && error.keyPattern && error.keyPattern.email) {
+        return res.status(400).json({ success: false, message: 'Email already in use' });
+      }
+      if (error.code === 11000 && error.keyPattern && error.keyPattern.username) {
+        return res.status(400).json({ success: false, message: 'Username already in use' });
+      }
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * Change current user password
+   */
+  static async changePassword(req, res) {
+    try {
+      const { oldPassword, newPassword } = req.body;
+      if (!oldPassword || !newPassword) {
+        return res.status(400).json({ success: false, message: 'Old and new password are required' });
+      }
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ success: false, message: 'Old password is incorrect' });
+      }
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+      await user.save();
+      res.json({ success: true, message: 'Password updated successfully' });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
 }
 
 module.exports = AuthController; 

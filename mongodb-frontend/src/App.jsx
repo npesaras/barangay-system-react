@@ -14,6 +14,7 @@ import RequestClearance from './components/RequestClearance';
 import Blotter from './components/Blotter';
 import BlotterRecords from './components/BlotterRecords';
 import BarangayInfo from './components/BarangayInfo';
+import AccountSettings from './components/AccountSettings';
 import './App.css';
 
 // Configure axios defaults
@@ -227,6 +228,16 @@ function App() {
         } />
         
         <Route path="/barangay-info" element={<BarangayInfo isAdmin={userRole === 'admin'} />} />
+        
+        <Route path="/account" element={
+          isAuthenticated ? (
+            <Layout setIsAuthenticated={setIsAuthenticated} userRole={userRole}>
+              <ErrorBoundary>
+                <AccountSettings />
+              </ErrorBoundary>
+            </Layout>
+          ) : <Navigate to="/login" />
+        } />
         
         <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
       </Routes>
