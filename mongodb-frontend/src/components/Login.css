@@ -18,21 +18,30 @@
 
 .brgy-info {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.brgy-info img,
+.brgy-info > div[style*='border-radius'] {
+  width: 120px !important;
+  height: 120px !important;
+  border-width: 3px !important;
+  font-size: 48px !important;
 }
 
 .brgy-text h1 {
-  color: #0066cc;
-  font-size: 2.5rem;
-  font-weight: bold;
+  color: #1976d2;
+  font-size: 2.4rem;
+  font-weight: 800;
   margin: 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .brgy-text h2 {
-  color: #333;
-  font-size: 1.5rem;
-  font-weight: normal;
+  color: #444;
+  font-size: 1.4rem;
+  font-weight: 500;
   margin: 0.5rem 0 0;
 }
 
@@ -43,6 +52,14 @@
   padding: 2rem;
   width: 100%;
   max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-form {
+  width: 100%;
+  margin-top: 0;
 }
 
 .login-form h2 {
@@ -195,12 +212,19 @@
     padding: 1rem;
   }
 
+  .brgy-info img,
+  .brgy-info > div[style*='border-radius'] {
+    width: 80px !important;
+    height: 80px !important;
+    font-size: 28px !important;
+  }
+
   .brgy-text h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
 
   .brgy-text h2 {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
 
   .modal-content {

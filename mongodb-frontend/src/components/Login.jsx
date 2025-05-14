@@ -189,34 +189,33 @@ const Login = ({ onLoginSuccess }) => {
       <div className="login-content">
         <div className="brgy-info" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 24 }}>
           {loadingBrgy ? (
-            <div style={{ width: 80, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>
+            <div style={{ width: 120, height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>
           ) : (
             <>
-              <div style={{ marginBottom: 8 }}>
+              <div style={{ marginBottom: 16 }}>
                 {logoUrl && !logoError ? (
                   <img
                     src={logoUrl}
                     alt="Barangay Logo"
-                    style={{ width: 80, height: 80, borderRadius: '50%', border: '2px solid #5271ff', objectFit: 'contain', background: '#fff', display: 'block', margin: '0 auto' }}
+                    style={{ width: 120, height: 120, borderRadius: '50%', border: '3px solid #5271ff', objectFit: 'contain', background: '#fff', display: 'block', margin: '0 auto' }}
                     onError={() => setLogoError(true)}
                   />
                 ) : (
-                  <div style={{ width: 80, height: 80, borderRadius: '50%', border: '2px dashed #5271ff', background: '#f1f5fa', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5271ff', fontSize: 28, margin: '0 auto' }}>
+                  <div style={{ width: 120, height: 120, borderRadius: '50%', border: '3px dashed #5271ff', background: '#f1f5fa', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5271ff', fontSize: 48, margin: '0 auto' }}>
                     {getInitials(brgyInfo?.barangay) || <img src={defaultLogo} alt="Default Logo" style={{ width: '60%', opacity: 0.5 }} />}
                   </div>
                 )}
               </div>
               <div className="brgy-text" style={{ textAlign: 'center' }}>
-                <h1 style={{ margin: 0, fontSize: 22 }}>{brgyInfo?.barangay || 'Barangay'}</h1>
-                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 400, color: '#444' }}>{brgyInfo ? `${brgyInfo.municipality}, ${brgyInfo.province}` : ''}</h2>
+                <h1 style={{ margin: 0, fontSize: 38, fontWeight: 800, color: '#1976d2', letterSpacing: 1 }}>{brgyInfo?.barangay || 'Barangay'}</h1>
+                <h2 style={{ margin: 0, fontSize: 22, fontWeight: 500, color: '#444' }}>{brgyInfo ? `${brgyInfo.municipality}, ${brgyInfo.province}` : ''}</h2>
               </div>
             </>
           )}
         </div>
         <div className="login-form-container">
           <div className="login-form">
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} style={{ marginTop: 0 }}>
               <div className="form-group">
                 <input
                   type="text"
