@@ -66,9 +66,12 @@ const DocumentApproval = () => {
     setSelectedRequest(null);
   };
 
+  const pendingRequests = requests.filter(r => r.status === 'pending');
+  const processedRequests = requests.filter(r => r.status === 'approved' || r.status === 'denied');
+
   return (
     <div className="document-approval">
-      <h2>Document Approval (Admin)</h2>
+      <h2 style={{ borderLeft: '3px solid #2563eb', paddingLeft: 10, marginBottom: 18, fontWeight: 700, color: '#222', fontSize: '1.18rem' }}>Pending Approval</h2>
       <table className="approval-table">
         <thead>
           <tr>
@@ -81,10 +84,50 @@ const DocumentApproval = () => {
           </tr>
         </thead>
         <tbody>
-          {requests.length === 0 ? (
-            <tr><td colSpan="6">No requests found.</td></tr>
+          {pendingRequests.length === 0 ? (
+            <tr><td colSpan="6">No pending document requests found.</td></tr>
           ) : (
-            requests.map(req => (
+            pendingRequests.map(req => (
+              <tr key={req._id}>
+                <td>{req.fullname}</td>
+                <td>{req.address}</td>
+                <td>{req.purpose}</td>
+                <td><span className={`status-label ${req.status}`}>Pending</span></td>
+                <td>{new Date(req.createdAt).toLocaleDateString()}</td>
+                <td style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
+                  <button className="btn-icon" title="View Details" onClick={() => handleView(req)}>
+                    <FaEye />
+                  </button>
+                  <button className="btn-icon btn-approve" title="Approve" onClick={() => handleApprove(req._id)}>
+                    <FaCheck />
+                  </button>
+                  <button className="btn-icon btn-deny" title="Deny" onClick={() => handleDeny(req._id)}>
+                    <FaTimes />
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+
+      <h2 style={{ borderLeft: '3px solid #22c55e', paddingLeft: 10, marginTop: 36, marginBottom: 18, fontWeight: 700, color: '#222', fontSize: '1.18rem' }}>Approved/Denied Document Requests</h2>
+      <table className="approval-table">
+        <thead>
+          <tr>
+            <th>Fullname</th>
+            <th>Address</th>
+            <th>Purpose</th>
+            <th>Status</th>
+            <th>Requested At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {processedRequests.length === 0 ? (
+            <tr><td colSpan="6">No approved or denied document requests found.</td></tr>
+          ) : (
+            processedRequests.map(req => (
               <tr key={req._id}>
                 <td>{req.fullname}</td>
                 <td>{req.address}</td>
@@ -92,29 +135,19 @@ const DocumentApproval = () => {
                 <td><span className={`status-label ${req.status}`}>
                   {req.status === 'approved' && <><FaCheck style={{marginRight: 4}} />Approved</>}
                   {req.status === 'denied' && <><FaTimes style={{marginRight: 4}} />Denied</>}
-                  {req.status === 'pending' && <>Pending</>}
                 </span></td>
                 <td>{new Date(req.createdAt).toLocaleDateString()}</td>
                 <td style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
                   <button className="btn-icon" title="View Details" onClick={() => handleView(req)}>
                     <FaEye />
                   </button>
-                  {req.status === 'pending' && (
-                    <>
-                      <button className="btn-icon btn-approve" title="Approve" onClick={() => handleApprove(req._id)}>
-                        <FaCheck />
-                      </button>
-                      <button className="btn-icon btn-deny" title="Deny" onClick={() => handleDeny(req._id)}>
-                        <FaTimes />
-                      </button>
-                    </>
-                  )}
                 </td>
               </tr>
             ))
           )}
         </tbody>
       </table>
+
       {viewModal && selectedRequest && (
         <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
           <div className="modal-content" style={{ background: '#fff', borderRadius: 10, padding: '2rem', minWidth: 320, maxWidth: 400, boxShadow: '0 4px 24px rgba(0,0,0,0.13)' }}>
