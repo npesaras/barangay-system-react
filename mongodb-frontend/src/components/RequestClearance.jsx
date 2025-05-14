@@ -6,6 +6,7 @@ const initialForm = {
   fullname: '',
   address: '',
   purpose: '',
+  message: '',
 };
 
 const RequestClearance = () => {
@@ -20,7 +21,8 @@ const RequestClearance = () => {
       const res = await clearanceService.getRequests();
       setRequests(res.data || []);
     } catch (err) {
-      showToast.error('Failed to fetch requests');
+      // No toast for failed fetch, just set requests to empty
+      setRequests([]);
     } finally {
       setLoading(false);
     }
@@ -73,6 +75,17 @@ const RequestClearance = () => {
             <option value="Certificate">Certificate</option>
             <option value="Other">Other</option>
           </select>
+        </div>
+        <div className="form-group">
+          <label>Additional Info / Message (optional)</label>
+          <textarea
+            name="message"
+            value={form.message}
+            onChange={handleChange}
+            placeholder="Add any additional information for the admin..."
+            rows={3}
+            style={{ resize: 'vertical' }}
+          />
         </div>
         <button type="submit" className="btn btn-primary" disabled={loading}>Submit Request</button>
       </form>

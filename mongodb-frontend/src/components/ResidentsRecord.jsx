@@ -107,8 +107,7 @@ export const ResidentsRecord = () => {
       setResidents(residentsData);
     } catch (error) {
       console.error('Error fetching residents:', error);
-      setError(error.message || 'Failed to fetch residents');
-      showToast.error(error.message || 'Failed to fetch residents');
+      setError('Failed to load residents data. Please try again later.');
       setResidents([]);
     } finally {
       setLoading(false);

@@ -6,6 +6,7 @@ const clearanceRequestSchema = new mongoose.Schema({
   fullname: { type: String, required: true },
   address: { type: String, required: true },
   purpose: { type: String, required: true },
+  message: { type: String },
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
 }, { timestamps: true });
 

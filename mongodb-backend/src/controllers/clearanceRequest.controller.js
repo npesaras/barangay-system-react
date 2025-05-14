@@ -5,7 +5,7 @@ module.exports = {
   // Create a new clearance request
   async createRequest(req, res) {
     try {
-      const { fullname, address, purpose } = req.body;
+      const { fullname, address, purpose, message } = req.body;
       const userId = req.user._id;
       // Optionally, find residentId if needed
       const resident = await Resident.findOne({ user: userId });
@@ -16,6 +16,7 @@ module.exports = {
         fullname,
         address,
         purpose,
+        message,
       });
       res.status(201).json({ success: true, data: request });
     } catch (err) {
