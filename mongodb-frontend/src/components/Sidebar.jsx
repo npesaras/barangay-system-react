@@ -75,6 +75,12 @@ const Sidebar = ({ setIsAuthenticated, userRole: userRoleProp }) => {
       </div>
       <ul className="sidebar-menu" style={{ flex: 1 }}>
         <li>
+          <NavLink to="/barangay-info" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
+            <FaUserShield className="sidebar-icon" />
+            <span>Barangay Info</span>
+          </NavLink>
+        </li>
+        <li>
           <NavLink to="/dashboard" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
             <FaChartBar className="sidebar-icon" />
             <span>Dashboard</span>
@@ -84,12 +90,6 @@ const Sidebar = ({ setIsAuthenticated, userRole: userRoleProp }) => {
           <NavLink to="/residents" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
             <FaDatabase className="sidebar-icon" />
             <span>Residents</span>
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/barangay-info" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
-            <FaUserShield className="sidebar-icon" />
-            <span>Barangay Info</span>
           </NavLink>
         </li>
         <li>
