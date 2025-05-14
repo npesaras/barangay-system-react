@@ -56,7 +56,7 @@ const Sidebar = ({ setIsAuthenticated, userRole: userRoleProp }) => {
   };
 
   return (
-    <div className="sidebar">
+    <div className="sidebar" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* Header with application name */}
       <div className="sidebar-header">
         <h3>BRM SYSTEM</h3>
@@ -78,52 +78,51 @@ const Sidebar = ({ setIsAuthenticated, userRole: userRoleProp }) => {
       </div>
       
       {/* Navigation menu with links */}
-      <ul className="sidebar-menu">
+      <ul className="sidebar-menu" style={{ flex: 1 }}>
         <li>
-          <NavLink to="/dashboard" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
+          <NavLink to="/dashboard" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
             <FaChartBar className="sidebar-icon" />
             <span>Dashboard</span>
           </NavLink>
         </li>
         <li>
-          <NavLink to="/residents" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
+          <NavLink to="/residents" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
             <FaDatabase className="sidebar-icon" />
             <span>Residents</span>
           </NavLink>
         </li>
         <li>
           {userRole === 'admin' ? (
-            <NavLink to="/document-approval" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
-              <span className="icon"><FaFileExport /></span>
-              Document Approval
+            <NavLink to="/document-approval" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
+              <FaFileExport className="sidebar-icon" />
+              <span>Document Approval</span>
             </NavLink>
           ) : (
-            <NavLink to="/request-clearance" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
-              <span className="icon"><FaFileExport /></span>
-              Request Clearance
+            <NavLink to="/request-clearance" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
+              <FaFileExport className="sidebar-icon" />
+              <span>Request Clearance</span>
             </NavLink>
           )}
         </li>
         <li>
           {userRole === 'admin' ? (
-            <NavLink to="/blotter-requests" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
-              <span className="icon"><FaFileExport /></span>
-              Blotter Requests
+            <NavLink to="/blotter-requests" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
+              <FaFileExport className="sidebar-icon" />
+              <span>Blotter Requests</span>
             </NavLink>
           ) : (
-            <NavLink to="/blotter" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
-              <span className="icon"><FaFileExport /></span>
-              Blotter
+            <NavLink to="/blotter" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
+              <FaFileExport className="sidebar-icon" />
+              <span>Blotter</span>
             </NavLink>
           )}
         </li>
-        <li>
-          <button className="sidebar-item logout" onClick={handleLogout}>
-            <FaSignOutAlt className="sidebar-icon" />
-            <span>Logout</span>
-          </button>
-        </li>
       </ul>
+      {/* Logout button always at the bottom */}
+      <button className="sidebar-item logout" onClick={handleLogout} style={{ width: '100%' }}>
+        <FaSignOutAlt className="sidebar-icon" />
+        <span>Logout</span>
+      </button>
     </div>
   );
 };
