@@ -268,9 +268,8 @@ const DocumentApproval = () => {
                     <FaEye />
                   </button>
                   {req.status === 'approved' && (
-                    <button className="btn-icon btn-generate" title="Generate Document" onClick={() => handleGenerateClick(req)}>
-                      <FaCheck style={{ color: '#2563eb' }} />
-                      <span style={{ marginLeft: 4, fontWeight: 500 }}>Generate Document</span>
+                    <button className="btn-icon btn-generate" title="Generate Document" style={{ fontSize: '1em', color: '#2563eb', padding: '4px 6px' }} onClick={() => handleGenerateClick(req)}>
+                      <span style={{ fontWeight: 500, fontSize: '0.98em' }}>📄</span>
                     </button>
                   )}
                 </td>
