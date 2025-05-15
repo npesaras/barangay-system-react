@@ -171,8 +171,34 @@ const RequestClearance = () => {
               alt="QR Code"
               style={{ width: 200, height: 200, margin: '0 auto' }}
               onError={e => { e.target.onerror = null; e.target.src = '/qr-placeholder.png'; }}
+              id="qr-modal-img"
             />
-            <button style={{ marginTop: 18, background: '#5271ff', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={() => setQrModal({ open: false, qrUrl: '' })}>Close</button>
+            <div style={{ marginTop: 10, color: '#444', fontSize: '0.98em' }}>
+              Please download this and present this to the barangay official.
+            </div>
+            <button
+              style={{ marginTop: 18, background: '#059669', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }}
+              onClick={async () => {
+                const img = document.getElementById('qr-modal-img');
+                if (img) {
+                  try {
+                    const response = await fetch(img.src, { cache: 'reload' });
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `qr-code.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                  } catch (err) {
+                    alert('Failed to download QR code.');
+                  }
+                }
+              }}
+            >Download QR Code</button>
+            <button style={{ marginTop: 12, background: '#5271ff', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600, marginLeft: 8 }} onClick={() => setQrModal({ open: false, qrUrl: '' })}>Close</button>
           </div>
         </div>
       )}
