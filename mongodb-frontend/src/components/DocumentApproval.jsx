@@ -235,6 +235,8 @@ const DocumentApproval = () => {
         if (!res.ok) throw new Error('No such document');
         const doc = await res.json();
         setScannedDoc(doc);
+        // Optionally log for debugging
+        console.log('Scanned QR hash:', data);
       } catch (err) {
         setScannedDoc(null);
         setScanError('There is no such a document');
@@ -262,6 +264,7 @@ const DocumentApproval = () => {
           const qrReader = new BrowserQRCodeReader();
           const result = await qrReader.decodeFromImage(undefined, e.target.result);
           if (result && result.text) {
+            setScanResult(result.text);
             handleScan(result.text);
           } else {
             showToast.error('No QR code found in the image.');
@@ -469,6 +472,11 @@ const DocumentApproval = () => {
                 }}>
                   <img src={uploadedImage} alt="Uploaded QR Preview" style={{ width: 120, height: 120, objectFit: 'contain', borderRadius: 8, background: '#fafafa', marginBottom: 4, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }} />
                   <span style={{ fontSize: '0.97em', color: '#444', fontWeight: 500 }}>Preview</span>
+                  {scanResult && (
+                    <div style={{ marginTop: 8, color: '#2563eb', fontSize: '0.98em', wordBreak: 'break-all' }}>
+                      <b>Hash code:</b> {scanResult}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div style={{

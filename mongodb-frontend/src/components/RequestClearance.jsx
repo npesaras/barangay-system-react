@@ -182,12 +182,20 @@ const RequestClearance = () => {
                 const img = document.getElementById('qr-modal-img');
                 if (img) {
                   try {
+                    // Try to extract the hash from the qrUrl (should be the request _id)
+                    let hash = '';
+                    if (qrModal.qrUrl) {
+                      const match = qrModal.qrUrl.match(/\/clearance-requests\/(.*?)\//);
+                      if (match && match[1]) hash = match[1];
+                    }
+                    // Fallback: use the open viewModal.request if available
+                    if (!hash && viewModal.request && viewModal.request._id) hash = viewModal.request._id;
                     const response = await fetch(img.src, { cache: 'reload' });
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
-                    link.download = `qr-code.png`;
+                    link.download = hash ? `qr-code-hash-${hash}.png` : `qr-code.png`;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
