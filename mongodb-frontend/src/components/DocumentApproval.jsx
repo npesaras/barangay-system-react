@@ -5,6 +5,8 @@ import './DocumentApproval.css';
 import { FaCheck, FaTimes, FaEye, FaQrcode } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import { barangayInfoService } from '../services/barangayInfoService';
+import QrScanner from 'react-qr-scanner';
+import { BrowserQRCodeReader } from '@zxing/browser';
 
 const DocumentApproval = () => {
   const [requests, setRequests] = useState([]);
@@ -17,6 +19,12 @@ const DocumentApproval = () => {
   const [barangayInfo, setBarangayInfo] = useState(null);
   const [logoImg, setLogoImg] = useState(null);
   const [qrModal, setQrModal] = useState({ open: false, qrUrl: '', loading: false });
+  const [scanModal, setScanModal] = useState(false);
+  const [scanResult, setScanResult] = useState(null);
+  const [scanError, setScanError] = useState('');
+  const [scannedDoc, setScannedDoc] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState(null);
   const backendBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
   const fetchRequests = async () => {
@@ -213,6 +221,64 @@ const DocumentApproval = () => {
     setQrModal({ open: true, qrUrl, loading: false });
   };
 
+  const handleScan = async (data) => {
+    if (data) {
+      setScanResult(data);
+      setScanError('');
+      // Call backend to check document
+      try {
+        const res = await fetch(`${backendBase}/clearance-requests/scan`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ qr: data })
+        });
+        if (!res.ok) throw new Error('No such document');
+        const doc = await res.json();
+        setScannedDoc(doc);
+      } catch (err) {
+        setScannedDoc(null);
+        setScanError('There is no such a document');
+      }
+    }
+  };
+
+  const handleError = (err) => {
+    setScanError('Error scanning QR code');
+  };
+
+  const handleImageUpload = async (event) => {
+    setScanError('');
+    setUploading(true);
+    setScannedDoc(null);
+    setScanResult(null);
+    setUploadedImage(null);
+    const file = event.target.files[0];
+    if (!file) { setUploading(false); return; }
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        setUploadedImage(e.target.result);
+        try {
+          const qrReader = new BrowserQRCodeReader();
+          const result = await qrReader.decodeFromImage(undefined, e.target.result);
+          if (result && result.text) {
+            handleScan(result.text);
+          } else {
+            showToast.error('No QR code found in the image.');
+          }
+        } catch (err) {
+          showToast.error('No QR code found in the image.');
+        } finally {
+          setUploading(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      showToast.error('Failed to process image.');
+      setUploading(false);
+    }
+  };
+
   const pendingRequests = requests.filter(r => r.status === 'pending');
   const processedRequests = requests.filter(r => r.status === 'approved' || r.status === 'denied');
 
@@ -375,6 +441,79 @@ const DocumentApproval = () => {
               </>
             )}
             <button style={{ marginTop: 18, background: '#5271ff', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={() => setQrModal({ open: false, qrUrl: '', loading: false })}>Close</button>
+          </div>
+        </div>
+      )}
+
+      <button style={{ marginBottom: 18, background: '#059669', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={() => setScanModal(true)}>
+        Scan QR Code
+      </button>
+
+      {scanModal && (
+        <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
+          <div className="modal-content" style={{ background: '#fff', borderRadius: 10, padding: '2rem', minWidth: 320, maxWidth: 400, boxShadow: '0 4px 24px rgba(0,0,0,0.13)', textAlign: 'center' }}>
+            <h3 style={{ marginTop: 0, marginBottom: 12, fontWeight: 800, fontSize: '1.35em', letterSpacing: 0.5, color: '#2563eb', textShadow: '0 2px 8px rgba(37,99,235,0.07)' }}>Scan QR Code</h3>
+            {/* Removed QrScanner live video. Only image placeholder/preview and upload remain. */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 10 }}>
+              {uploadedImage ? (
+                <div style={{
+                  background: '#fff',
+                  border: '1.5px solid #e5e7eb',
+                  borderRadius: 12,
+                  padding: '12px 12px 6px 12px',
+                  minWidth: 0,
+                  maxWidth: 220,
+                  marginBottom: 4
+                }}>
+                  <img src={uploadedImage} alt="Uploaded QR Preview" style={{ width: 120, height: 120, objectFit: 'contain', borderRadius: 8, background: '#fafafa', marginBottom: 4, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }} />
+                  <span style={{ fontSize: '0.97em', color: '#444', fontWeight: 500 }}>Preview</span>
+                </div>
+              ) : (
+                <div style={{
+                  background: '#f3f4f6',
+                  border: '1.5px dashed #cbd5e1',
+                  borderRadius: 12,
+                  width: 120,
+                  height: 120,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 4
+                }}>
+                  <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#b0b6c1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="17" y="17" width="4" height="4" rx="1"/><rect x="14" y="14" width="4" height="4" rx="1"/></svg>
+                </div>
+              )}
+            </div>
+            <div style={{ margin: '16px 0 0 0', padding: '10px 0', borderTop: '1px solid #eee', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: '1.01em', color: '#222' }}>Or upload a QR code image:</label>
+              <label htmlFor="qr-upload-input" style={{
+                background: '#f3f6fd',
+                color: '#2563eb',
+                border: '1.5px solid #dbeafe',
+                borderRadius: 7,
+                padding: '0.5rem 1.1rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                marginBottom: 8,
+                boxShadow: '0 2px 8px rgba(37,99,235,0.04)',
+                transition: 'background 0.2s, color 0.2s',
+                display: 'inline-block',
+              }}>
+                {uploading ? 'Uploading...' : 'Choose Image'}
+                <input id="qr-upload-input" type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} style={{ display: 'none' }} />
+              </label>
+            </div>
+            {scanError && <div style={{ color: '#fff', background: '#ef4444', borderRadius: 6, padding: '8px 0', marginTop: 18, fontWeight: 600, fontSize: '1.05em', letterSpacing: 0.2 }}> {scanError} </div>}
+            {scannedDoc && (
+              <div style={{ marginTop: 16, textAlign: 'left' }}>
+                <div><strong>Full Name:</strong> {scannedDoc.fullname}</div>
+                <div><strong>Address:</strong> {scannedDoc.address}</div>
+                <div><strong>Purpose:</strong> {scannedDoc.purpose}</div>
+                <div><strong>Status:</strong> {scannedDoc.status}</div>
+                <div><strong>Requested At:</strong> {new Date(scannedDoc.createdAt).toLocaleString()}</div>
+              </div>
+            )}
+            <button style={{ marginTop: 18, background: '#5271ff', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={() => { setScanModal(false); setScanResult(null); setScannedDoc(null); setScanError(''); setUploadedImage(null); }}>Close</button>
           </div>
         </div>
       )}
