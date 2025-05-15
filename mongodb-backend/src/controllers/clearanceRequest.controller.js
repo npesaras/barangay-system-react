@@ -143,10 +143,10 @@ module.exports = {
       const { qr } = req.body;
       if (!qr) return res.status(400).json({ success: false, message: 'QR code value required' });
       const request = await ClearanceRequest.findOne({ qrCodeHash: qr });
-      if (!request) return res.status(404).json({ success: false, message: 'No such document' });
+      if (!request) return res.json({ exists: false });
       // Only return public-safe fields
       const { _id, fullname, address, purpose, message, status, createdAt } = request;
-      res.json({ _id, fullname, address, purpose, message, status, createdAt });
+      res.json({ exists: true, data: { _id, fullname, address, purpose, message, status, createdAt } });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }

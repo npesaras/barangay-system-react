@@ -23,6 +23,7 @@ const DocumentApproval = () => {
   const [scanResult, setScanResult] = useState(null);
   const [scanError, setScanError] = useState('');
   const [scannedDoc, setScannedDoc] = useState(null);
+  const [showScannedDetails, setShowScannedDetails] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
   const backendBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -232,14 +233,17 @@ const DocumentApproval = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ qr: data })
         });
-        if (!res.ok) throw new Error('No such document');
-        const doc = await res.json();
-        setScannedDoc(doc);
-        // Optionally log for debugging
-        console.log('Scanned QR hash:', data);
+        const result = await res.json();
+        if (result.exists) {
+          setScannedDoc(result.data);
+          showToast.success('QR code exists!');
+        } else {
+          setScannedDoc(null);
+          showToast.error('No such document for this QR code.');
+        }
       } catch (err) {
         setScannedDoc(null);
-        setScanError('There is no such a document');
+        showToast.error('Error checking QR code.');
       }
     }
   };
@@ -486,6 +490,11 @@ const DocumentApproval = () => {
                       <b>Hash code:</b> <span style={{ wordBreak: 'break-all' }}>{scanResult}</span>
                     </div>
                   )}
+                  {scannedDoc && (
+                    <button style={{ marginTop: 14, background: '#059669', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={() => setShowScannedDetails(true)}>
+                      View Details
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div style={{
@@ -533,6 +542,23 @@ const DocumentApproval = () => {
               </div>
             )}
             <button style={{ marginTop: 18, background: '#5271ff', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={() => { setScanModal(false); setScanResult(null); setScannedDoc(null); setScanError(''); setUploadedImage(null); }}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {showScannedDetails && scannedDoc && (
+        <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2100 }}>
+          <div className="modal-content" style={{ background: '#fff', borderRadius: 10, padding: '2rem', minWidth: 320, maxWidth: 400, boxShadow: '0 4px 24px rgba(0,0,0,0.13)' }}>
+            <h3 style={{ marginTop: 0, marginBottom: 16 }}>Request Details</h3>
+            <div style={{ marginBottom: 10 }}><b>Full Name:</b> {scannedDoc.fullname}</div>
+            <div style={{ marginBottom: 10 }}><b>Address:</b> {scannedDoc.address}</div>
+            <div style={{ marginBottom: 10 }}><b>Purpose:</b> {scannedDoc.purpose}</div>
+            <div style={{ marginBottom: 10 }}><b>Status:</b> {scannedDoc.status}</div>
+            <div style={{ marginBottom: 10 }}><b>Requested At:</b> {new Date(scannedDoc.createdAt).toLocaleString()}</div>
+            {scannedDoc.message && (
+              <div style={{ marginBottom: 10 }}><b>Message:</b> {scannedDoc.message}</div>
+            )}
+            <button style={{ marginTop: 18, background: '#5271ff', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={() => setShowScannedDetails(false)}>Close</button>
           </div>
         </div>
       )}
