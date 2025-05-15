@@ -139,16 +139,18 @@ module.exports = {
 
   // Scan QR code and return matching clearance request
   async scanQRCode(req, res) {
+    console.log('scanQRCode endpoint hit');
     try {
+      console.log('[scanQRCode] Full request body:', JSON.stringify(req.body));
       const { qr } = req.body;
-      console.log('[scanQRCode] Received QR:', qr);
+      console.log('[scanQRCode] Received QR:', JSON.stringify(qr), 'Length:', qr ? qr.length : 'null', 'Chars:', qr ? qr.split('') : 'null');
       if (!qr) return res.status(400).json({ success: false, message: 'QR code value required' });
       const request = await ClearanceRequest.findOne({ qrCodeHash: qr });
       console.log('[scanQRCode] Found request:', request);
       if (!request) return res.json({ exists: false });
       // Only return public-safe fields
       const { _id, fullname, address, purpose, message, status, createdAt } = request;
-      res.json({ exists: true, data: { _id, fullname, address, purpose, message, status, createdAt } });
+      return res.json({ exists: true, _id, fullname, address, purpose, message, status, createdAt });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }

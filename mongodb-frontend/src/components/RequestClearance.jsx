@@ -182,14 +182,22 @@ const RequestClearance = () => {
                 const img = document.getElementById('qr-modal-img');
                 if (img) {
                   try {
-                    // Try to extract the hash from the qrUrl (should be the request _id)
+                    // Find the request that matches the QR modal URL (by _id in the URL)
                     let hash = '';
                     if (qrModal.qrUrl) {
                       const match = qrModal.qrUrl.match(/\/clearance-requests\/(.*?)\//);
                       if (match && match[1]) hash = match[1];
                     }
-                    // Fallback: use the open viewModal.request if available
-                    if (!hash && viewModal.request && viewModal.request._id) hash = viewModal.request._id;
+                    // Fallback: find the request in the requests array
+                    if (!hash && requests.length > 0) {
+                      // Try to find a request whose QR code URL matches the modal URL
+                      const found = requests.find(r => `${backendBase}/clearance-requests/${r._id}/qr` === qrModal.qrUrl.split('?')[0]);
+                      if (found) hash = found._id;
+                    }
+                    // Fallback: just use the first approved request if only one
+                    if (!hash && requests.length === 1 && requests[0].status === 'approved') {
+                      hash = requests[0]._id;
+                    }
                     const response = await fetch(img.src, { cache: 'reload' });
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);

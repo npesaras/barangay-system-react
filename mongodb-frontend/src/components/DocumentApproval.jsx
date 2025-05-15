@@ -8,6 +8,7 @@ import { barangayInfoService } from '../services/barangayInfoService';
 import QrScanner from 'react-qr-scanner';
 import { BrowserQRCodeReader } from '@zxing/browser';
 import api from '../services/axios';
+import { toast } from 'react-toastify';
 
 const DocumentApproval = () => {
   const [requests, setRequests] = useState([]);
@@ -224,6 +225,7 @@ const DocumentApproval = () => {
   };
 
   const handleScan = async (data) => {
+    console.log('handleScan called with:', data);
     if (data) {
       setScanResult(data);
       setScanError('');
@@ -231,9 +233,16 @@ const DocumentApproval = () => {
       try {
         const res = await api.post('/clearance-requests/scan', { qr: data });
         const result = res.data;
+        console.log('Scan API response:', result);
         if (result.exists) {
-          setScannedDoc(result.data);
-          showToast.success('QR code exists!');
+          setScannedDoc(result);
+          // Custom toast with button to view details
+          toast.success(
+            <div>
+              QR code exists! <button style={{marginLeft:8,background:'#059669',color:'#fff',border:'none',borderRadius:4,padding:'2px 10px',fontWeight:600,cursor:'pointer'}} onClick={() => { setShowScannedDetails(true); toast.dismiss(); }}>View Details</button>
+            </div>,
+            { autoClose: 5000 }
+          );
         } else {
           setScannedDoc(null);
           showToast.error('No such document for this QR code.');
@@ -250,43 +259,47 @@ const DocumentApproval = () => {
   };
 
   const handleImageUpload = async (event) => {
+    console.log('handleImageUpload called');
     setScanError('');
     setUploading(true);
     setScannedDoc(null);
     setScanResult(null);
     setUploadedImage(null);
-    let fileHash = '';
+
     const file = event.target.files[0];
     if (!file) { setUploading(false); return; }
-    // Try to extract hash from file name if present
-    const hashMatch = file.name.match(/hash-([a-fA-F0-9]+)/);
-    if (hashMatch && hashMatch[1]) fileHash = hashMatch[1];
-    try {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        setUploadedImage(e.target.result);
-        try {
-          const qrReader = new BrowserQRCodeReader();
-          const result = await qrReader.decodeFromImage(undefined, e.target.result);
-          if (result && result.text) {
-            setScanResult(result.text); // Set hash code immediately
-            handleScan(result.text);
-          } else {
-            showToast.error('No QR code found in the image.');
-            if (fileHash) setScanResult(fileHash);
-          }
-        } catch (err) {
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      setUploadedImage(e.target.result);
+
+      // Try to extract hash from file name if present
+      const hashMatch = file.name.match(/hash-([a-fA-F0-9]{24})/);
+      if (hashMatch && hashMatch[1]) {
+        const hash = hashMatch[1];
+        setScanResult(hash);
+        setUploading(false);
+        handleScan(hash);
+        return;
+      }
+
+      // Fallback: try to decode the QR code from the image
+      try {
+        const qrReader = new BrowserQRCodeReader();
+        const result = await qrReader.decodeFromImage(undefined, e.target.result);
+        if (result && result.text) {
+          setScanResult(result.text);
+          handleScan(result.text);
+        } else {
           showToast.error('No QR code found in the image.');
-          if (fileHash) setScanResult(fileHash);
-        } finally {
-          setUploading(false);
         }
-      };
-      reader.readAsDataURL(file);
-    } catch (err) {
-      showToast.error('Failed to process image.');
-      setUploading(false);
-    }
+      } catch (err) {
+        showToast.error('No QR code found in the image.');
+      } finally {
+        setUploading(false);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const pendingRequests = requests.filter(r => r.status === 'pending');
