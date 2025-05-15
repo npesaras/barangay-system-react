@@ -197,16 +197,29 @@ const RequestClearance = () => {
                 onError={e => { e.target.onerror = null; e.target.src = '/qr-placeholder.png'; }}
                 id="qr-detail-img"
               />
+              <div style={{ marginTop: 10, color: '#444', fontSize: '0.98em' }}>
+                Please download this and show this to the barangay official.
+              </div>
             </div>
             <button
               style={{ marginBottom: 18, background: '#059669', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }}
-              onClick={() => {
+              onClick={async () => {
                 const img = document.getElementById('qr-detail-img');
                 if (img) {
-                  const link = document.createElement('a');
-                  link.href = img.src;
-                  link.download = `qr-code-${viewModal.request._id}.png`;
-                  link.click();
+                  try {
+                    const response = await fetch(img.src, { cache: 'reload' });
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `qr-code-${viewModal.request._id}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                  } catch (err) {
+                    alert('Failed to download QR code.');
+                  }
                 }
               }}
             >Download QR Code</button>
