@@ -236,13 +236,8 @@ const DocumentApproval = () => {
         console.log('Scan API response:', result);
         if (result.data && result.data.exists) {
           setScannedDoc(result.data);
-          // Custom toast with button to view details
-          toast.success(
-            <div>
-              QR code exists! <button style={{marginLeft:8,background:'#059669',color:'#fff',border:'none',borderRadius:4,padding:'2px 10px',fontWeight:600,cursor:'pointer'}} onClick={() => { setShowScannedDetails(true); toast.dismiss(); }}>View Details</button>
-            </div>,
-            { autoClose: 5000 }
-          );
+          // Only show a success toast, no View Details button
+          toast.success('QR code exists!', { autoClose: 3000 });
         } else {
           setScannedDoc(null);
           showToast.error('No such document for this QR code.');
@@ -493,17 +488,12 @@ const DocumentApproval = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                  <img src={uploadedImage} alt="Uploaded QR Preview" style={{ width: 120, height: 120, objectFit: 'contain', borderRadius: 8, background: '#fafafa', marginBottom: 4, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', display: 'block', marginLeft: 'auto', marginRight: 'auto' }} />
+                  <img src={uploadedImage} alt="Uploaded QR Preview" style={{ width: 200, height: 200, objectFit: 'contain', borderRadius: 8, background: '#fafafa', marginBottom: 4, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', display: 'block', marginLeft: 'auto', marginRight: 'auto' }} />
                   <span style={{ fontSize: '0.97em', color: '#444', fontWeight: 500, textAlign: 'center' }}>Preview</span>
                   {scanResult && (
                     <div style={{ marginTop: 8, color: '#2563eb', fontSize: '0.98em', wordBreak: 'break-all', textAlign: 'center', width: '100%' }}>
                       <b>Hash code:</b> <span style={{ wordBreak: 'break-all' }}>{scanResult}</span>
                     </div>
-                  )}
-                  {scannedDoc && (
-                    <button style={{ marginTop: 14, background: '#059669', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={() => setShowScannedDetails(true)}>
-                      View Details
-                    </button>
                   )}
                 </div>
               ) : (
@@ -559,16 +549,11 @@ const DocumentApproval = () => {
       {showScannedDetails && scannedDoc && (
         <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2100 }}>
           <div className="modal-content" style={{ background: '#fff', borderRadius: 10, padding: '2rem', minWidth: 320, maxWidth: 400, boxShadow: '0 4px 24px rgba(0,0,0,0.13)' }}>
-            <h3 style={{ marginTop: 0, marginBottom: 16 }}>Request Details</h3>
-            <div style={{ marginBottom: 10 }}><b>Full Name:</b> {scannedDoc.fullname}</div>
-            <div style={{ marginBottom: 10 }}><b>Address:</b> {scannedDoc.address}</div>
-            <div style={{ marginBottom: 10 }}><b>Purpose:</b> {scannedDoc.purpose}</div>
-            <div style={{ marginBottom: 10 }}><b>Status:</b> {scannedDoc.status}</div>
-            <div style={{ marginBottom: 10 }}><b>Requested At:</b> {new Date(scannedDoc.createdAt).toLocaleString()}</div>
-            {scannedDoc.message && (
-              <div style={{ marginBottom: 10 }}><b>Message:</b> {scannedDoc.message}</div>
-            )}
-            <button style={{ marginTop: 18, background: '#5271ff', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={() => setShowScannedDetails(false)}>Close</button>
+            <h3 style={{ marginTop: 0, marginBottom: 16 }}>Request Actions</h3>
+            <div style={{ marginTop: 24, display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 12 }}>
+              <button style={{ background: '#059669', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600, minWidth: 120 }} onClick={() => { handleGenerateClick(scannedDoc); setShowScannedDetails(false); }}>Generate Document</button>
+              <button style={{ background: '#5271ff', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600, minWidth: 100 }} onClick={() => setShowScannedDetails(false)}>Close</button>
+            </div>
           </div>
         </div>
       )}
