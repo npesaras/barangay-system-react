@@ -254,8 +254,12 @@ const DocumentApproval = () => {
     setScannedDoc(null);
     setScanResult(null);
     setUploadedImage(null);
+    let fileHash = '';
     const file = event.target.files[0];
     if (!file) { setUploading(false); return; }
+    // Try to extract hash from file name if present
+    const hashMatch = file.name.match(/hash-([a-fA-F0-9]+)/);
+    if (hashMatch && hashMatch[1]) fileHash = hashMatch[1];
     try {
       const reader = new FileReader();
       reader.onload = async (e) => {
@@ -264,13 +268,15 @@ const DocumentApproval = () => {
           const qrReader = new BrowserQRCodeReader();
           const result = await qrReader.decodeFromImage(undefined, e.target.result);
           if (result && result.text) {
-            setScanResult(result.text);
+            setScanResult(result.text); // Set hash code immediately
             handleScan(result.text);
           } else {
             showToast.error('No QR code found in the image.');
+            if (fileHash) setScanResult(fileHash);
           }
         } catch (err) {
           showToast.error('No QR code found in the image.');
+          if (fileHash) setScanResult(fileHash);
         } finally {
           setUploading(false);
         }
@@ -458,7 +464,6 @@ const DocumentApproval = () => {
         <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
           <div className="modal-content" style={{ background: '#fff', borderRadius: 10, padding: '2rem', minWidth: 320, maxWidth: 400, boxShadow: '0 4px 24px rgba(0,0,0,0.13)', textAlign: 'center' }}>
             <h3 style={{ marginTop: 0, marginBottom: 12, fontWeight: 800, fontSize: '1.35em', letterSpacing: 0.5, color: '#2563eb', textShadow: '0 2px 8px rgba(37,99,235,0.07)' }}>Scan QR Code</h3>
-            {/* Removed QrScanner live video. Only image placeholder/preview and upload remain. */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 10 }}>
               {uploadedImage ? (
                 <div style={{
@@ -468,13 +473,17 @@ const DocumentApproval = () => {
                   padding: '12px 12px 6px 12px',
                   minWidth: 0,
                   maxWidth: 220,
-                  marginBottom: 4
+                  marginBottom: 4,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}>
-                  <img src={uploadedImage} alt="Uploaded QR Preview" style={{ width: 120, height: 120, objectFit: 'contain', borderRadius: 8, background: '#fafafa', marginBottom: 4, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }} />
-                  <span style={{ fontSize: '0.97em', color: '#444', fontWeight: 500 }}>Preview</span>
+                  <img src={uploadedImage} alt="Uploaded QR Preview" style={{ width: 120, height: 120, objectFit: 'contain', borderRadius: 8, background: '#fafafa', marginBottom: 4, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', display: 'block', marginLeft: 'auto', marginRight: 'auto' }} />
+                  <span style={{ fontSize: '0.97em', color: '#444', fontWeight: 500, textAlign: 'center' }}>Preview</span>
                   {scanResult && (
-                    <div style={{ marginTop: 8, color: '#2563eb', fontSize: '0.98em', wordBreak: 'break-all' }}>
-                      <b>Hash code:</b> {scanResult}
+                    <div style={{ marginTop: 8, color: '#2563eb', fontSize: '0.98em', wordBreak: 'break-all', textAlign: 'center', width: '100%' }}>
+                      <b>Hash code:</b> <span style={{ wordBreak: 'break-all' }}>{scanResult}</span>
                     </div>
                   )}
                 </div>
