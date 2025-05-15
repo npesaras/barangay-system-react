@@ -234,8 +234,8 @@ const DocumentApproval = () => {
         const res = await api.post('/clearance-requests/scan', { qr: data });
         const result = res.data;
         console.log('Scan API response:', result);
-        if (result.exists) {
-          setScannedDoc(result);
+        if (result.data && result.data.exists) {
+          setScannedDoc(result.data);
           // Custom toast with button to view details
           toast.success(
             <div>
