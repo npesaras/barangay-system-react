@@ -21,6 +21,9 @@ const formatResponse = require('./middleware/response.middleware');
 // Import routes
 const authRoutes = require('./routes/auth.routes');
 const residentRoutes = require('./routes/resident.routes');
+const clearanceRequestRoutes = require('./routes/clearanceRequest.routes');
+const blotterRequestRoutes = require('./routes/blotterRequest.routes');
+const barangayInfoRoutes = require('./routes/barangayInfo.routes');
 
 // Create Express app
 const app = express();
@@ -37,6 +40,8 @@ app.use(formatResponse); // Response formatting
 
 // Serve static files
 app.use('/uploads/profiles', express.static(path.join(__dirname, '../uploads/profiles')));
+app.use('/uploads/barangay-logos', express.static(path.join(__dirname, '../uploads/barangay-logos')));
+app.use('/uploads/account-pictures', express.static(path.join(__dirname, '../uploads/account-pictures')));
 
 // Apply rate limiting only in production
 if (process.env.NODE_ENV === 'production') {
@@ -49,6 +54,9 @@ if (process.env.NODE_ENV === 'production') {
 // Mount routes with /api prefix
 app.use('/api/auth', authRoutes);
 app.use('/api/residents', residentRoutes);
+app.use('/api/clearance-requests', clearanceRequestRoutes);
+app.use('/api/blotter-requests', blotterRequestRoutes);
+app.use('/api/barangay-info', barangayInfoRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

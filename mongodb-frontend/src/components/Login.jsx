@@ -14,11 +14,19 @@
  * 
  * @module components/Login
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../App';
 import { showToast } from '../utils/toast';
 import './Login.css'; // We'll create this file next
+import { barangayInfoService } from '../services/barangayInfoService';
+
+const defaultLogo = '/logo-placeholder.png';
+function getInitials(name) {
+  if (!name) return '';
+  const words = name.split(' ');
+  if (words.length === 1) return words[0][0]?.toUpperCase() || '';
+}
 
 /**
  * Login component for user authentication
@@ -46,7 +54,34 @@ const Login = ({ onLoginSuccess }) => {
     adminCode: ''
   });
   
+  const [brgyInfo, setBrgyInfo] = useState(null);
+  const [logoUrl, setLogoUrl] = useState('');
+  const [logoError, setLogoError] = useState(false);
+  const [loadingBrgy, setLoadingBrgy] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function fetchInfo() {
+      setLoadingBrgy(true);
+      try {
+        const data = await barangayInfoService.getInfo();
+        setBrgyInfo(data);
+        if (data.logo) {
+          setLogoUrl(barangayInfoService.getLogoUrl() + '?t=' + Date.now());
+        } else {
+          setLogoUrl('');
+        }
+        setLogoError(false);
+      } catch {
+        setBrgyInfo(null);
+        setLogoUrl('');
+        setLogoError(false);
+      } finally {
+        setLoadingBrgy(false);
+      }
+    }
+    fetchInfo();
+  }, []);
 
   /**
    * Handles changes to login form input fields
@@ -152,16 +187,35 @@ const Login = ({ onLoginSuccess }) => {
   return (
     <div className="login-container">
       <div className="login-content">
-        <div className="brgy-info">
-          <div className="brgy-text">
-            <h1>Brgy. Sto. Rosario</h1>
-            <h2>Iligan City, Lanao Del Norte</h2>
-          </div>
+        <div className="brgy-info" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 24 }}>
+          {loadingBrgy ? (
+            <div style={{ width: 120, height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>
+          ) : (
+            <>
+              <div style={{ marginBottom: 16 }}>
+                {logoUrl && !logoError ? (
+                  <img
+                    src={logoUrl}
+                    alt="Barangay Logo"
+                    style={{ width: 120, height: 120, borderRadius: '50%', border: '3px solid #5271ff', objectFit: 'contain', background: '#fff', display: 'block', margin: '0 auto' }}
+                    onError={() => setLogoError(true)}
+                  />
+                ) : (
+                  <div style={{ width: 120, height: 120, borderRadius: '50%', border: '3px dashed #5271ff', background: '#f1f5fa', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5271ff', fontSize: 48, margin: '0 auto' }}>
+                    {getInitials(brgyInfo?.barangay) || <img src={defaultLogo} alt="Default Logo" style={{ width: '60%', opacity: 0.5 }} />}
+                  </div>
+                )}
+              </div>
+              <div className="brgy-text" style={{ textAlign: 'center' }}>
+                <h1 style={{ margin: 0, fontSize: 38, fontWeight: 800, color: '#1976d2', letterSpacing: 1 }}>{brgyInfo?.barangay || 'Barangay'}</h1>
+                <h2 style={{ margin: 0, fontSize: 22, fontWeight: 500, color: '#444' }}>{brgyInfo ? `${brgyInfo.municipality}, ${brgyInfo.province}` : ''}</h2>
+              </div>
+            </>
+          )}
         </div>
         <div className="login-form-container">
           <div className="login-form">
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} style={{ marginTop: 0 }}>
               <div className="form-group">
                 <input
                   type="text"

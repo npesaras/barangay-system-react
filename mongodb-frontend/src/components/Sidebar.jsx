@@ -15,8 +15,8 @@
  * @module components/Sidebar
  */
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FaChartBar, FaDatabase, FaAngleRight, FaAngleDown, FaSignOutAlt, FaUser, FaUserShield } from 'react-icons/fa';
+import { Link, useNavigate, useLocation, NavLink } from 'react-router-dom';
+import { FaChartBar, FaDatabase, FaAngleRight, FaAngleDown, FaSignOutAlt, FaUser, FaUserShield, FaFileExport } from 'react-icons/fa';
 import { logoutUser } from '../App';
 import { showToast } from '../utils/toast';
 
@@ -25,60 +25,41 @@ import { showToast } from '../utils/toast';
  * 
  * @returns {JSX.Element} Rendered Sidebar component
  */
-const Sidebar = () => {
-  // State to track if the Data submenu is expanded
-  const [dataExpanded, setDataExpanded] = useState(false);
-  
+const Sidebar = ({ setIsAuthenticated, userRole: userRoleProp }) => {
   // State to track user role
-  const [userRole, setUserRole] = useState('user');
+  const [userRole, setUserRole] = useState(userRoleProp || 'user');
   
   // Hooks for navigation and location tracking
   const navigate = useNavigate();
   const location = useLocation();
 
-  /**
-   * Auto-expand the Data menu when navigating to the residents page
-   * This ensures the submenu is visible when the user is on a related page
-   */
   useEffect(() => {
-    if (location.pathname === '/residents') {
-      setDataExpanded(true);
+    // Use prop if available, otherwise fallback to localStorage
+    if (userRoleProp) {
+      setUserRole(userRoleProp);
+    } else {
+      const storedRole = localStorage.getItem('userRole');
+      if (storedRole) {
+        setUserRole(storedRole);
+      }
     }
-    
-    // Get user role from localStorage
-    const storedRole = localStorage.getItem('userRole');
-    if (storedRole) {
-      setUserRole(storedRole);
-    }
-  }, [location.pathname]);
+  }, [location.pathname, userRoleProp]);
 
-  /**
-   * Handles user logout with error handling and toast notifications
-   * Calls the logoutUser function and navigates to the login page
-   */
   const handleLogout = () => {
     try {
-      // First call the logout function directly
-      logoutUser(navigate);
-      
-      // Then show toast (this won't block the navigation)
-      showToast.success('Logged out successfully');
+      logoutUser(navigate, setIsAuthenticated);
     } catch (error) {
       console.error('Error during logout:', error);
       showToast.error('Error logging out');
-      // Force navigation if there's an error
       window.location.href = '/login';
     }
   };
 
   return (
-    <div className="sidebar">
-      {/* Header with application name */}
+    <div className="sidebar" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <div className="sidebar-header">
         <h3>BRM SYSTEM</h3>
       </div>
-      
-      {/* User role indicator */}
       <div className="user-role">
         {userRole === 'admin' ? (
           <>
@@ -92,48 +73,62 @@ const Sidebar = () => {
           </>
         )}
       </div>
-      
-      {/* Navigation menu with links */}
-      <div className="sidebar-menu">
-        {/* Dashboard link */}
-        <Link 
-          to="/dashboard"
-          className={`sidebar-item ${location.pathname === '/dashboard' ? 'active' : ''}`}
-        >
-          <FaChartBar className="sidebar-icon" />
-          <span>Dashboard</span>
-        </Link>
-        
-        {/* Data dropdown with residents submenu */}
-        <div className="sidebar-dropdown">
-          <div 
-            className={`sidebar-item ${location.pathname === '/residents' ? 'active' : ''}`}
-            onClick={() => setDataExpanded(!dataExpanded)}
-          >
+      <ul className="sidebar-menu" style={{ flex: 1 }}>
+        <li>
+          <NavLink to="/barangay-info" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
+            <FaUserShield className="sidebar-icon" />
+            <span>Barangay Info</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/dashboard" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
+            <FaChartBar className="sidebar-icon" />
+            <span>Dashboard</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/residents" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
             <FaDatabase className="sidebar-icon" />
-            <span>Data</span>
-            {dataExpanded ? <FaAngleDown className="dropdown-icon" /> : <FaAngleRight className="dropdown-icon" />}
-          </div>
-          
-          {/* Submenu that shows only when expanded */}
-          {dataExpanded && (
-            <div className="sidebar-submenu">
-              <Link 
-                to="/residents"
-                className={`sidebar-subitem ${location.pathname === '/residents' ? 'active' : ''}`}
-              >
-                Residents
-              </Link>
-            </div>
+            <span>Residents</span>
+          </NavLink>
+        </li>
+        <li>
+          {userRole === 'admin' ? (
+            <NavLink to="/document-approval" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
+              <FaFileExport className="sidebar-icon" />
+              <span>Document Approval</span>
+            </NavLink>
+          ) : (
+            <NavLink to="/request-clearance" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
+              <FaFileExport className="sidebar-icon" />
+              <span>Request Clearance</span>
+            </NavLink>
           )}
-        </div>
-
-        {/* Logout button */}
-        <div className="sidebar-item logout" onClick={handleLogout}>
-          <FaSignOutAlt className="sidebar-icon" />
-          <span>Logout</span>
-        </div>
-      </div>
+        </li>
+        <li>
+          {userRole === 'admin' ? (
+            <NavLink to="/blotter-requests" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
+              <FaFileExport className="sidebar-icon" />
+              <span>Blotter Requests</span>
+            </NavLink>
+          ) : (
+            <NavLink to="/blotter" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}> 
+              <FaFileExport className="sidebar-icon" />
+              <span>Blotter</span>
+            </NavLink>
+          )}
+        </li>
+        <li>
+          <NavLink to="/account" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
+            <FaUser className="sidebar-icon" />
+            <span>Account Settings</span>
+          </NavLink>
+        </li>
+      </ul>
+      <button className="sidebar-item logout" onClick={handleLogout} style={{ width: '100%' }}>
+        <FaSignOutAlt className="sidebar-icon" />
+        <span>Logout</span>
+      </button>
     </div>
   );
 };

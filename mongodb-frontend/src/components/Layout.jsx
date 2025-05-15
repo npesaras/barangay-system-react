@@ -1,10 +1,10 @@
 import React from 'react';
 import Sidebar from './Sidebar';
 
-const Layout = ({ children }) => {
+const Layout = ({ children, setIsAuthenticated, userRole }) => {
   return (
     <div className="app-layout">
-      <Sidebar />
+      <Sidebar setIsAuthenticated={setIsAuthenticated} userRole={userRole} />
       <div className="main-content">
         {children}
       </div>

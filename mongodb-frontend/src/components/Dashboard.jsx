@@ -89,6 +89,7 @@ const Dashboard = () => {
         nonVotersCount: 0
       });
       setError('Failed to load analytics data');
+      showToast.error(err.message || 'Failed to load analytics data');
     } finally {
       setLoading(false);
     }
