@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../services/axios';
 import { showToast } from '../utils/toast';
 
 const backendBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -19,9 +19,7 @@ const AccountSettings = () => {
 
   const fetchUser = async () => {
     try {
-      const res = await axios.get(`${backendBase}/auth/me`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await api.get('/auth/me');
       setUser(res.data.user);
       setForm({
         username: res.data.user.username || '',
@@ -72,19 +70,17 @@ const AccountSettings = () => {
       if (profileImage instanceof File) {
         formData.append('profileImage', profileImage);
       }
-      const res = await fetch(`${backendBase}/auth/update`, {
-        method: 'PUT',
+      // Use api instance for multipart/form-data
+      const res = await api.put('/auth/update', formData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          'Content-Type': 'multipart/form-data',
         },
-        body: formData,
       });
-      const data = await res.json();
-      if (data.success) {
+      if (res.data.success) {
         showToast.success('Account updated');
         fetchUser();
       } else {
-        showToast.error(data.message || 'Failed to update account');
+        showToast.error(res.data.message || 'Failed to update account');
       }
     } catch (err) {
       showToast.error('Failed to update account');
@@ -101,11 +97,9 @@ const AccountSettings = () => {
     }
     setLoading(true);
     try {
-      await axios.put(`${backendBase}/auth/password`, {
+      await api.put('/auth/password', {
         oldPassword: passwords.oldPassword,
         newPassword: passwords.newPassword
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       showToast.success('Password updated');
       setPasswords({ oldPassword: '', newPassword: '', confirmPassword: '' });

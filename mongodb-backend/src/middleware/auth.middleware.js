@@ -9,6 +9,7 @@ const authenticateToken = async (req, res, next) => {
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
+    console.log('[auth.middleware] Authorization header:', authHeader);
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
@@ -19,7 +20,17 @@ const authenticateToken = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
 
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log('[auth.middleware] Decoded token:', decoded);
+    } catch (err) {
+      console.error('[auth.middleware] Token verification failed:', err);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token (decode failed)'
+      });
+    }
 
     // Find user
     const user = await User.findById(decoded.id).select('-password');

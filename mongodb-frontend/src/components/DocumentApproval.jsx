@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import { barangayInfoService } from '../services/barangayInfoService';
 import QrScanner from 'react-qr-scanner';
 import { BrowserQRCodeReader } from '@zxing/browser';
+import api from '../services/axios';
 
 const DocumentApproval = () => {
   const [requests, setRequests] = useState([]);
@@ -228,12 +229,8 @@ const DocumentApproval = () => {
       setScanError('');
       // Call backend to check document
       try {
-        const res = await fetch(`${backendBase}/clearance-requests/scan`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ qr: data })
-        });
-        const result = await res.json();
+        const res = await api.post('/clearance-requests/scan', { qr: data });
+        const result = res.data;
         if (result.exists) {
           setScannedDoc(result.data);
           showToast.success('QR code exists!');
