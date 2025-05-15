@@ -355,20 +355,9 @@ const DocumentApproval = () => {
                     <FaEye />
                   </button>
                   {req.status === 'approved' && (
-                    <>
-                      <button className="btn-icon btn-generate" title="Generate Document" style={{ fontSize: '1em', color: '#2563eb', padding: '4px 6px' }} onClick={() => handleGenerateClick(req)}>
-                        <span style={{ fontWeight: 500, fontSize: '0.98em' }}>📄</span>
-                      </button>
-                      {req.qrCodePath ? (
-                        <button className="btn-icon btn-qr" title="View QR Code" style={{ fontSize: '1em', color: '#059669', padding: '4px 6px' }} onClick={() => handleViewQR(req)}>
-                          <FaQrcode />
-                        </button>
-                      ) : (
-                        <button className="btn-icon btn-qr" title="Generate QR Code" style={{ fontSize: '1em', color: '#059669', padding: '4px 6px' }} onClick={() => handleGenerateQR(req)}>
-                          <FaQrcode />
-                        </button>
-                      )}
-                    </>
+                    <button className="btn-icon btn-generate" title="Generate Document" style={{ fontSize: '1em', color: '#2563eb', padding: '4px 6px' }} onClick={() => handleGenerateClick(req)}>
+                      <span style={{ fontWeight: 500, fontSize: '0.98em' }}>📄</span>
+                    </button>
                   )}
                 </td>
               </tr>
@@ -388,6 +377,19 @@ const DocumentApproval = () => {
             <div style={{ marginBottom: 10 }}><b>Requested At:</b> {new Date(selectedRequest.createdAt).toLocaleString()}</div>
             {selectedRequest.message && (
               <div style={{ marginBottom: 10 }}><b>Message:</b> {selectedRequest.message}</div>
+            )}
+            {selectedRequest.status === 'approved' && (
+              <div style={{ margin: '18px 0 0 0', textAlign: 'center' }}>
+                <img
+                  src={`${backendBase}/clearance-requests/${selectedRequest._id}/qr?t=${Date.now()}`}
+                  alt="QR Code"
+                  style={{ width: 180, height: 180, margin: '0 auto', border: '1px solid #eee', background: '#fafafa', borderRadius: 10 }}
+                  onError={e => { e.target.onerror = null; e.target.src = '/qr-placeholder.png'; }}
+                />
+                <div style={{ marginTop: 10, color: '#444', fontSize: '0.98em' }}>
+                  This is the auto-generated QR code for this document.
+                </div>
+              </div>
             )}
             <button style={{ marginTop: 18, background: '#5271ff', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={closeModal}>Close</button>
           </div>

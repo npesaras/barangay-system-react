@@ -21,5 +21,7 @@ router.patch('/:id/deny', controller.denyRequest);
 router.delete('/:id', controller.deleteRequest);
 // Generate QR code for a request (admin)
 router.patch('/:id/generate-qr', controller.generateQRCode);
+// Scan QR code (admin)
+router.post('/scan', controller.scanQRCode);
 
 module.exports = router; 

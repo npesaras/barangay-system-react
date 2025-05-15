@@ -51,6 +51,17 @@ module.exports = {
         { new: true }
       );
       if (!request) return res.status(404).json({ success: false, message: 'Request not found' });
+      // Auto-generate QR code if not present
+      if (!request.qrCodeHash || !request.qrCodePath) {
+        const hash = request._id.toString();
+        const qrDir = path.join(__dirname, '../../uploads/qrcodes');
+        if (!fs.existsSync(qrDir)) fs.mkdirSync(qrDir, { recursive: true });
+        const qrPath = path.join(qrDir, `qr-${hash}.png`);
+        await QRCode.toFile(qrPath, hash, { width: 300 });
+        request.qrCodePath = `qrcodes/qr-${hash}.png`;
+        request.qrCodeHash = hash;
+        await request.save();
+      }
       res.json({ success: true, data: request });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
@@ -121,6 +132,21 @@ module.exports = {
       const qrPath = path.join(__dirname, '../../uploads', request.qrCodePath);
       if (!fs.existsSync(qrPath)) return res.status(404).json({ success: false, message: 'QR code file not found' });
       res.sendFile(qrPath);
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
+
+  // Scan QR code and return matching clearance request
+  async scanQRCode(req, res) {
+    try {
+      const { qr } = req.body;
+      if (!qr) return res.status(400).json({ success: false, message: 'QR code value required' });
+      const request = await ClearanceRequest.findOne({ qrCodeHash: qr });
+      if (!request) return res.status(404).json({ success: false, message: 'No such document' });
+      // Only return public-safe fields
+      const { _id, fullname, address, purpose, message, status, createdAt } = request;
+      res.json({ _id, fullname, address, purpose, message, status, createdAt });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }
