@@ -18,6 +18,7 @@ const RequestClearance = () => {
   const [barangayInfo, setBarangayInfo] = useState(null);
   const [logoImg, setLogoImg] = useState(null);
   const [qrModal, setQrModal] = useState({ open: false, qrUrl: '' });
+  const [viewModal, setViewModal] = useState({ open: false, request: null });
   const backendBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
   // Fetch user's own requests
@@ -147,6 +148,11 @@ const RequestClearance = () => {
                           <rect x="12" y="12" width="2" height="2" fill="#059669"/>
                         </svg>
                       </button>
+                      <button className="btn-icon btn-view" title="View Details" style={{ fontSize: '1em', color: '#2563eb', padding: '4px 6px', marginLeft: 4 }} onClick={() => setViewModal({ open: true, request: req })}>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M10 4C5 4 1.73 8.11 1.13 8.93a1.5 1.5 0 0 0 0 2.14C1.73 11.89 5 16 10 16s8.27-4.11 8.87-4.93a1.5 1.5 0 0 0 0-2.14C18.27 8.11 15 4 10 4Zm0 10c-3.31 0-6.13-2.94-7.19-4C3.87 8.94 6.69 6 10 6s6.13 2.94 7.19 4C16.13 11.06 13.31 14 10 14Zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z" fill="#2563eb"/>
+                        </svg>
+                      </button>
                     </>
                   )}
                 </td>
@@ -167,6 +173,44 @@ const RequestClearance = () => {
               onError={e => { e.target.onerror = null; e.target.src = '/qr-placeholder.png'; }}
             />
             <button style={{ marginTop: 18, background: '#5271ff', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }} onClick={() => setQrModal({ open: false, qrUrl: '' })}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {viewModal.open && viewModal.request && (
+        <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
+          <div className="modal-content" style={{ background: '#fff', borderRadius: 10, padding: '2rem', minWidth: 320, maxWidth: 400, boxShadow: '0 4px 24px rgba(0,0,0,0.13)', textAlign: 'center' }}>
+            <h3 style={{ marginTop: 0, marginBottom: 16 }}>Request Details</h3>
+            <div style={{ textAlign: 'left', marginBottom: 16 }}>
+              <div><strong>Full Name:</strong> {viewModal.request.fullname}</div>
+              <div><strong>Address:</strong> {viewModal.request.address}</div>
+              <div><strong>Purpose:</strong> {viewModal.request.purpose}</div>
+              <div><strong>Message:</strong> {viewModal.request.message || <span style={{ color: '#888' }}>(none)</span>}</div>
+              <div><strong>Status:</strong> {viewModal.request.status}</div>
+              <div><strong>Requested At:</strong> {new Date(viewModal.request.createdAt).toLocaleString()}</div>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <img
+                src={`${backendBase}/clearance-requests/${viewModal.request._id}/qr?t=${Date.now()}`}
+                alt="QR Code"
+                style={{ width: 200, height: 200, margin: '0 auto', border: '1px solid #eee', background: '#fafafa' }}
+                onError={e => { e.target.onerror = null; e.target.src = '/qr-placeholder.png'; }}
+                id="qr-detail-img"
+              />
+            </div>
+            <button
+              style={{ marginBottom: 18, background: '#059669', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600 }}
+              onClick={() => {
+                const img = document.getElementById('qr-detail-img');
+                if (img) {
+                  const link = document.createElement('a');
+                  link.href = img.src;
+                  link.download = `qr-code-${viewModal.request._id}.png`;
+                  link.click();
+                }
+              }}
+            >Download QR Code</button>
+            <button style={{ background: '#5271ff', color: '#fff', border: 'none', borderRadius: 5, padding: '0.5rem 1.2rem', cursor: 'pointer', fontWeight: 600, marginLeft: 8 }} onClick={() => setViewModal({ open: false, request: null })}>Close</button>
           </div>
         </div>
       )}
